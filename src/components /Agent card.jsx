@@ -24,10 +24,6 @@ const AgentCard = ({
 
   const tooltipId = `tooltip-${agentName.replace(/\s+/g, '-').toLowerCase()}`;
 
-  const handleToggleTooltip = () => {
-    setShowTooltip(prev => !prev);
-  };
-
   return (
     <div className="relative bg-[#111] border border-cyan-500/30 rounded-xl p-6 shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all duration-300">
       {/* Header */}
@@ -47,13 +43,13 @@ const AgentCard = ({
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6 bg-[#0a0a0a] rounded-lg p-4 border border-cyan-500/10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-[#0a0a0a] rounded-lg p-4 border border-cyan-500/10">
         <div>
           <div className="text-xs text-gray-500 mb-1">ACCURACY</div>
           <div className="text-2xl font-bold text-cyan-400">{accuracy}%</div>
           <div className="w-full bg-gray-800 rounded-full h-2 mt-2 overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-cyan-500 to-teal-500 transition-all duration-1000"
+              className="h-full bg-gradient-to-r from-cyan-500 to-teal-500 transition-[width] duration-1000 ease-out"
               style={{ width: `${accuracy}%` }}
             ></div>
           </div>
@@ -67,16 +63,12 @@ const AgentCard = ({
 
       {/* Buttons */}
       <div className="space-y-3">
+        {/* Generate Key with tooltip */}
         <div className="relative">
           <button
-            onClick={(e) => {
-              handleToggleTooltip();
-              onGenerateKey();
-            }}
+            onClick={onGenerateKey} // action separate from tooltip
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
-            onFocus={() => setShowTooltip(true)}
-            onBlur={() => setShowTooltip(false)}
             aria-describedby={showTooltip ? tooltipId : undefined}
             className="w-full bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105 flex items-center justify-center gap-2"
           >
@@ -97,7 +89,8 @@ const AgentCard = ({
               <div className="text-xs text-gray-300">
                 Generate a unique API key to allow this agent to interact with prediction markets programmatically.
               </div>
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-cyan-400/50"></div>
+              {/* Tooltip arrow */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-cyan-400/60"></div>
             </div>
           )}
         </div>
@@ -129,4 +122,3 @@ const AgentCard = ({
 };
 
 export default AgentCard;
-        
