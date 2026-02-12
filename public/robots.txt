@@ -1,0 +1,5 @@
+User-agent: *
+Disallow:
+
+# Optional: allow crawling of only certain paths
+# Allow: /pages/
