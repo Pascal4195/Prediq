@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getProvider, CONTRACT_ADDRESSES, ASSET_MAP } from './utils/eth';
-import { Wallet, Zap, TrendingUp, Cpu, Globe } from 'lucide-react';
+import { Wallet, Zap, BarChart3, Shield, Info, ChevronRight } from 'lucide-react';
 
 function App() {
   const [account, setAccount] = useState(null);
@@ -20,75 +20,117 @@ function App() {
 
   const connectWallet = async () => {
     const provider = getProvider();
-    if (!provider) return alert("Open in MetaMask!");
+    if (!provider) return alert("Open in MetaMask Browser!");
     const signer = await provider.getSigner();
     setAccount(await signer.getAddress());
   };
 
-  if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-cyan-500 font-['Orbitron'] tracking-widest">LOADING_SYSTEM...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-[#050508] flex items-center justify-center">
+      <div className="relative w-16 h-16">
+        <div className="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
+        <div className="absolute inset-0 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    </div>
+  );
 
   return (
-    // We added font-['Orbitron'] here to force the sci-fi look
-    <div className="min-h-screen bg-[#020205] text-white font-['Orbitron'] overflow-x-hidden">
-      
-      {/* ANIMATED BACKGROUND (The "Competitor Killer") */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-cyan-600/10 blur-[120px] rounded-full animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
-        {/* Subtle Grid Overlay like ClawMate */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90px, #fff 1px, transparent 1px)', backgroundSize: '40px 40px'}}></div>
-      </div>
+    <div className="min-h-screen bg-[#050508] text-white font-mono selection:bg-cyan-500/30">
+      {/* GLOW BACKGROUND EFFECT */}
+      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-900/20 blur-[120px] rounded-full"></div>
+      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-900/20 blur-[120px] rounded-full"></div>
 
-      <nav className="relative z-10 p-6 flex justify-between items-center max-w-7xl mx-auto">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 border-2 border-cyan-500 flex items-center justify-center rotate-45 shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-            <Zap className="-rotate-45 text-cyan-400" size={20} fill="currentColor" />
+      {/* NAV */}
+      <nav className="relative z-10 border-b border-white/5 bg-black/40 backdrop-blur-xl px-6 py-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+              <Zap size={20} fill="white" />
+            </div>
+            <span className="text-2xl font-black tracking-tighter italic">PREDIQ</span>
           </div>
-          <span className="text-2xl font-black tracking-tighter italic bg-gradient-to-r from-white to-cyan-500 bg-clip-text text-transparent">PREDIQ</span>
+          
+          <button 
+            onClick={connectWallet}
+            className="group relative px-6 py-2 bg-cyan-500/10 border border-cyan-500/50 rounded-full overflow-hidden transition-all hover:bg-cyan-500 hover:text-black"
+          >
+            <span className="relative z-10 flex items-center gap-2 font-bold text-xs">
+              <Wallet size={14} />
+              {account ? `${account.substring(0, 6)}...${account.substring(38)}` : "CONNECT TERMINAL"}
+            </span>
+          </button>
         </div>
-        
-        <button onClick={connectWallet} className="border border-cyan-500/50 px-6 py-2 rounded-sm skew-x-[-12deg] hover:bg-cyan-500 hover:text-black transition-all font-bold text-xs">
-          <div className="skew-x-[12deg] flex items-center gap-2">
-            <Wallet size={14} />
-            {account ? account.substring(0, 8) : "INITIALIZE_WALLET"}
-          </div>
-        </button>
       </nav>
 
-      <main className="relative z-10 max-w-6xl mx-auto px-6 pt-10 pb-20">
-        <div className="text-center mb-20">
-          <h1 className="text-4xl md:text-7xl font-black mb-4 tracking-tight uppercase leading-none">
-            Elite <span className="text-cyan-500 shadow-cyan-500/50">Forecasting</span> <br/> 
-            <span className="text-xs tracking-[0.8em] text-slate-500">Monad High-Speed Network</span>
+      {/* HERO SECTION */}
+      <main className="relative z-10 max-w-6xl mx-auto px-6 py-12">
+        <div className="mb-16 text-center">
+          <div className="inline-block px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-[10px] font-bold tracking-[0.2em] mb-4">
+            POWERED BY MONAD L1
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent uppercase">
+            Predict. Win. <br/> <span className="text-cyan-400">Evolve.</span>
           </h1>
+          <p className="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+            The next generation of high-frequency prediction markets. 
+            Deployed on Monad for sub-second settlement.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* MARKET GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {Object.entries(ASSET_MAP).map(([id, asset]) => (
-            <div key={id} className="group relative bg-black/40 border-l-4 border-cyan-500 p-8 clip-path-polygon transition-all hover:bg-cyan-950/20">
-              <div className="absolute top-2 right-4 text-[10px] text-cyan-500/50">MKT_{id}</div>
-              <div className="text-4xl mb-6 group-hover:scale-110 transition-transform">{asset.symbol}</div>
-              <h3 className="text-2xl font-bold mb-1">{asset.name}</h3>
-              <div className="w-12 h-1 bg-cyan-500 mb-6"></div>
-              <button className="w-full py-3 border border-white/10 bg-white/5 hover:bg-white hover:text-black transition-all text-[10px] font-bold tracking-widest uppercase">
-                Open Terminal
-              </button>
+            <div key={id} className="group relative p-1 rounded-3xl transition-all hover:scale-[1.02]">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-3xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative bg-[#0d0d12] border border-white/10 p-6 rounded-3xl h-full flex flex-col">
+                <div className="flex justify-between items-center mb-8">
+                  <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-3xl">
+                    {asset.symbol}
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Market Status</div>
+                    <div className="text-xs text-cyan-400 flex items-center gap-1 justify-end">
+                      <div className="w-1 h-1 bg-cyan-400 rounded-full animate-pulse"></div> LIVE
+                    </div>
+                  </div>
+                </div>
+                
+                <h3 className="text-2xl font-black mb-1">{asset.name}</h3>
+                <p className="text-slate-500 text-xs mb-8 uppercase tracking-widest font-bold">Predict {asset.name} Price</p>
+                
+                <button className="mt-auto w-full bg-white text-black py-3 rounded-2xl font-black text-xs tracking-widest transition-all hover:bg-cyan-400">
+                  ENTER MARKET
+                </button>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* System Stats Footer */}
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-white/10 pt-8">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] text-slate-500 uppercase">Network</span>
-            <span className="text-xs text-cyan-400 flex items-center gap-2"><Globe size={12}/> MONAD_TEST</span>
+        {/* STATS STRIP */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center gap-4">
+            <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400"><BarChart3 size={20}/></div>
+            <div>
+              <div className="text-[10px] text-slate-500 uppercase font-bold">Active Agents</div>
+              <div className="text-sm font-bold">SYNCHRONIZING...</div>
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] text-slate-500 uppercase">Status</span>
-            <span className="text-xs text-green-400 flex items-center gap-2"><Cpu size={12}/> OPERATIONAL</span>
+          <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center gap-4">
+            <div className="p-3 bg-cyan-500/20 rounded-xl text-cyan-400"><Shield size={20}/></div>
+            <div>
+              <div className="text-[10px] text-slate-500 uppercase font-bold">Security</div>
+              <div className="text-sm font-bold">MONAD TESTNET SECURE</div>
+            </div>
           </div>
         </div>
       </main>
+
+      {/* FOOTER BAR */}
+      <footer className="relative z-10 border-t border-white/5 p-8 text-center mt-20">
+        <p className="text-[10px] text-slate-600 font-bold tracking-[0.5em] uppercase">
+          &copy; 2026 PREDIQ TERMINAL // ALL RIGHTS RESERVED
+        </p>
+      </footer>
     </div>
   );
 }
