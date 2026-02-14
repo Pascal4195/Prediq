@@ -1,0 +1,10 @@
+{
+  "name": "prediq-backend-agents",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "agent.js",
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "node-fetch": "^3.3.2"
+  }
+}
