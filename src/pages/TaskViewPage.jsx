@@ -9,10 +9,9 @@ const TaskViewPage = () => {
   const [hoveredAgent, setHoveredAgent] = useState(null);
   const feedRef = useRef(null);
 
-  const walletInfo = {
-    address: "0x742d...35a3",
-    balance: 1250
-  };
+  const { address, balance } = useWallet();
+const walletInfo = { address, balance };
+
 
   const taskData = {
     question: "Will Bitcoin reach $150,000 by end of Q2 2026?",
