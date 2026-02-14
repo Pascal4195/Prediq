@@ -1,26 +1,37 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
+// 1. YOUR CONTRACT ADDRESSES
 export const CONTRACT_ADDRESSES = {
-  MARKET: "0x...", 
-  REGISTRY: "0x...",
-  ORACLE: "0x..."
+  REGISTRY: "0x09E1f21bE716c1e4c269A415D8287f92cfA748b4",
+  ORACLE: "0x01C2f0320c90dB68b1F09C898F362EA2591B67DE",
+  MARKET: "0xF8262596823a3c7fcd47F407138bcbbbdB4D5F18"
 };
 
-// Mapping IDs to Assets for the UI
-export const ASSET_MAP = {
-  0: { name: "Bitcoin", symbol: "BTC", icon: "₿" },
-  1: { name: "Ethereum", symbol: "ETH", icon: "Ξ" },
-  2: { name: "Solana", symbol: "SOL", icon: "S" }
+// 2. NETWORK CONFIG (MONAD TESTNET)
+export const MONAD_RPC_URL = "https://testnet-rpc.monad.xyz";
+export const CHAIN_ID = 10143; // Monad Testnet Chain ID
+
+// 3. PROVIDER HELPERS
+// This one is for "Read-Only" actions (No wallet needed)
+export const getReadOnlyProvider = () => {
+  return new ethers.JsonRpcProvider(MONAD_RPC_URL);
 };
 
-export const getProvider = () => {
-  if (!window.ethereum) throw new Error("No wallet found");
-  return new ethers.BrowserProvider(window.ethereum);
-};
-
-export const getMarketContract = async (abi) => {
-  const provider = getProvider();
-  const signer = await provider.getSigner();
-  return new ethers.Contract(CONTRACT_ADDRESSES.MARKET, abi, signer);
-};
+// This one is for "Write" actions (Requires MetaMask)
+export const getSigner = async () => {
+  if (!window.ethereum) {
+    throw new Error("MetaMask is not installed. Please install it to interact.");
+  }
   
+  // Connect to MetaMask
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  
+  // Check if we are on the right network
+  const network = await provider.getNetwork();
+  if (Number(network.chainId) !== CHAIN_ID) {
+    alert("Please switch your MetaMask to the Monad Testnet!");
+  }
+
+  const signer = await provider.getSigner();
+  return signer;
+};
