@@ -1,6 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { getProvider, CONTRACT_ADDRESSES, ASSET_MAP } from './utils/eth';
-import { Wallet, Zap, BarChart3, Shield, Info, ChevronRight } from 'lucide-react';
+import { getProvider, ASSET_MAP } from './utils/eth';
+import { Zap, Wallet, BarChart3, Shield } from 'lucide-react';
+
+// ICON COMPONENT - Restores the high-quality glowing SVGs from the screenshots
+const CryptoIcon = ({ name }) => {
+  const icons = {
+    "BTC": (
+      <svg className="w-12 h-12 drop-shadow-[0_0_15px_rgba(247,147,26,0.8)]" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="12" fill="#F7931A"/>
+        <path d="M16.64 12.883c.27-1.805-.11-2.775-3.04-3.418l.621-2.493-1.517-.378-.605 2.427c-.398-.1-.808-.195-1.21-.29l.61-2.443-1.517-.378-.621 2.492c-.33-.075-.653-.15-.966-.23l.001-.005-2.092-.522-.403 1.62s1.126.258 1.102.274c.615.154.726.56.708.882l-.71 2.844c.042.011.098.025.158.04l-.16-.04-.995 3.99c-.075.187-.266.467-.695.36.015.023-1.103-.275-1.103-.275l-.752 1.734 1.974.492c.367.092.727.188 1.082.278l-.625 2.51 1.516.378.622-2.495c.414.113.816.219 1.207.32l-.619 2.483 1.517.378.625-2.508c2.587.49 4.532.292 5.35-2.048.66-1.884.024-2.972-1.34-3.682 1.0-.23 1.75-.884 1.952-2.235zm-3.502 4.882c-.47 1.884-3.64.866-4.67.61l.833-3.34c1.03.257 4.343.764 3.837 2.73zm.47-4.908c-.427 1.716-3.07.844-3.927.632l.755-3.03c.857.21 3.633.6 3.172 2.398z" fill="white"/>
+      </svg>
+    ),
+    "ETH": (
+      <svg className="w-12 h-12 drop-shadow-[0_0_15px_rgba(98,126,234,0.8)]" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="12" fill="#627EEA"/>
+        <path d="M12 18.273l-4.5-2.659L12 22l4.5-6.386-4.5 2.659z" fill="#C0CBF6" fillOpacity=".6"/>
+        <path d="M12 2l-4.5 7.455L12 11.636l4.5-2.181L12 2z" fill="white"/>
+        <path d="M12 11.636l-4.5-2.181L12 16l4.5-6.545-4.5 2.181z" fill="white" fillOpacity=".6"/>
+      </svg>
+    ),
+    "MON": (
+      <svg className="w-12 h-12 drop-shadow-[0_0_20px_rgba(168,85,247,1)]" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="12" fill="#A855F7"/>
+        <path d="M12 6l5 10H7l5-10z" fill="white" />
+      </svg>
+    )
+  };
+  return icons[name] || <div className="text-white">{name}</div>;
+};
 
 function App() {
   const [account, setAccount] = useState(null);
@@ -8,11 +35,13 @@ function App() {
 
   useEffect(() => {
     const check = async () => {
-      const provider = getProvider();
-      if (provider) {
-        const accounts = await provider.listAccounts();
-        if (accounts.length > 0) setAccount(accounts[0].address);
-      }
+      try {
+        const provider = getProvider();
+        if (provider) {
+          const accounts = await provider.listAccounts();
+          if (accounts.length > 0) setAccount(accounts[0].address);
+        }
+      } catch (e) {}
       setLoading(false);
     };
     check();
@@ -20,88 +49,72 @@ function App() {
 
   const connectWallet = async () => {
     const provider = getProvider();
-    if (!provider) return alert("Open in MetaMask Browser!");
+    if (!provider) return;
     const signer = await provider.getSigner();
     setAccount(await signer.getAddress());
   };
 
-  if (loading) return (
-    <div className="min-h-screen bg-[#050508] flex items-center justify-center">
-      <div className="relative w-16 h-16">
-        <div className="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
-        <div className="absolute inset-0 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    </div>
-  );
+  if (loading) return <div className="min-h-screen bg-[#020205] flex items-center justify-center font-mono text-cyan-400">BOOTING_TERMINAL...</div>;
 
   return (
-    <div className="min-h-screen bg-[#050508] text-white font-mono selection:bg-cyan-500/30">
-      {/* GLOW BACKGROUND EFFECT */}
-      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-900/20 blur-[120px] rounded-full"></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-900/20 blur-[120px] rounded-full"></div>
+    <div className="min-h-screen bg-[#020205] text-white font-mono relative overflow-x-hidden">
+      
+      {/* 🌌 BACKGROUND LAYER - Grid and Clouds */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[60%] bg-cyan-500/10 blur-[120px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[60%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse"></div>
+        
+        {/* Animated Cyber Grid */}
+        <div className="absolute inset-0 opacity-[0.05]" 
+             style={{
+               backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', 
+               backgroundSize: '50px 50px',
+               transform: 'perspective(500px) rotateX(60deg) translateY(0%)',
+               animation: 'gridMove 20s linear infinite'
+             }}>
+        </div>
+      </div>
 
       {/* NAV */}
       <nav className="relative z-10 border-b border-white/5 bg-black/40 backdrop-blur-xl px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.5)]">
-              <Zap size={20} fill="white" />
-            </div>
-            <span className="text-2xl font-black tracking-tighter italic">PREDIQ</span>
+            <Zap className="text-cyan-400" size={24} fill="currentColor" />
+            <span className="text-2xl font-black italic tracking-tighter">PREDIQ</span>
           </div>
-          
-          <button 
-            onClick={connectWallet}
-            className="group relative px-6 py-2 bg-cyan-500/10 border border-cyan-500/50 rounded-full overflow-hidden transition-all hover:bg-cyan-500 hover:text-black"
-          >
-            <span className="relative z-10 flex items-center gap-2 font-bold text-xs">
-              <Wallet size={14} />
-              {account ? `${account.substring(0, 6)}...${account.substring(38)}` : "CONNECT TERMINAL"}
-            </span>
+          <button onClick={connectWallet} className="px-6 py-2 bg-cyan-500/10 border border-cyan-500/50 rounded-full hover:bg-cyan-500 hover:text-black transition-all font-bold text-xs">
+            {account ? `${account.substring(0, 6)}...${account.substring(38)}` : "CONNECT TERMINAL"}
           </button>
         </div>
       </nav>
 
-      {/* HERO SECTION */}
+      {/* HERO */}
       <main className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-        <div className="mb-16 text-center">
-          <div className="inline-block px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-[10px] font-bold tracking-[0.2em] mb-4">
+        <div className="text-center mb-16">
+          <div className="inline-block px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-[10px] font-bold tracking-widest mb-4">
             POWERED BY MONAD L1
           </div>
-          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent uppercase">
-            Predict. Win. <br/> <span className="text-cyan-400">Evolve.</span>
+          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter uppercase italic">
+            PREDICT. WIN. <br/> <span className="text-cyan-400">EVOLVE.</span>
           </h1>
-          <p className="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
-            The next generation of high-frequency prediction markets. 
-            Deployed on Monad for sub-second settlement.
-          </p>
         </div>
 
-        {/* MARKET GRID */}
+        {/* CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {Object.entries(ASSET_MAP).map(([id, asset]) => (
-            <div key={id} className="group relative p-1 rounded-3xl transition-all hover:scale-[1.02]">
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-3xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative bg-[#0d0d12] border border-white/10 p-6 rounded-3xl h-full flex flex-col">
-                <div className="flex justify-between items-center mb-8">
-                  <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-3xl">
-                    {asset.symbol}
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Market Status</div>
-                    <div className="text-xs text-cyan-400 flex items-center gap-1 justify-end">
-                      <div className="w-1 h-1 bg-cyan-400 rounded-full animate-pulse"></div> LIVE
-                    </div>
-                  </div>
+            <div key={id} className="group relative bg-[#0d0d12]/80 border border-white/10 p-8 rounded-3xl backdrop-blur-xl hover:border-cyan-500/50 transition-all">
+              <div className="flex justify-between items-start mb-8">
+                <CryptoIcon name={asset.name} />
+                <div className="text-right">
+                  <div className="text-[10px] text-slate-500 font-bold uppercase">Market ID</div>
+                  <div className="text-xs text-cyan-400 font-bold">#{id}</div>
                 </div>
-                
-                <h3 className="text-2xl font-black mb-1">{asset.name}</h3>
-                <p className="text-slate-500 text-xs mb-8 uppercase tracking-widest font-bold">Predict {asset.name} Price</p>
-                
-                <button className="mt-auto w-full bg-white text-black py-3 rounded-2xl font-black text-xs tracking-widest transition-all hover:bg-cyan-400">
-                  ENTER MARKET
-                </button>
               </div>
+              <h3 className="text-2xl font-black mb-1 italic">{asset.name}</h3>
+              <p className="text-slate-500 text-xs mb-8 uppercase font-bold tracking-widest">Oracle Active</p>
+              <button className="w-full bg-white text-black py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-cyan-400 transition-colors">
+                ENTER MARKET
+              </button>
             </div>
           ))}
         </div>
@@ -109,28 +122,28 @@ function App() {
         {/* STATS STRIP */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400"><BarChart3 size={20}/></div>
+            <BarChart3 className="text-purple-400" size={24} />
             <div>
               <div className="text-[10px] text-slate-500 uppercase font-bold">Active Agents</div>
-              <div className="text-sm font-bold">SYNCHRONIZING...</div>
+              <div className="text-sm font-bold tracking-tighter">SYNCHRONIZING...</div>
             </div>
           </div>
           <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-cyan-500/20 rounded-xl text-cyan-400"><Shield size={20}/></div>
+            <Shield className="text-cyan-400" size={24} />
             <div>
               <div className="text-[10px] text-slate-500 uppercase font-bold">Security</div>
-              <div className="text-sm font-bold">MONAD TESTNET SECURE</div>
+              <div className="text-sm font-bold tracking-tighter">MONAD TESTNET SECURE</div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* FOOTER BAR */}
-      <footer className="relative z-10 border-t border-white/5 p-8 text-center mt-20">
-        <p className="text-[10px] text-slate-600 font-bold tracking-[0.5em] uppercase">
-          &copy; 2026 PREDIQ TERMINAL // ALL RIGHTS RESERVED
-        </p>
-      </footer>
+      <style>{`
+        @keyframes gridMove {
+          0% { transform: perspective(500px) rotateX(60deg) translateY(0%); }
+          100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+      `}</style>
     </div>
   );
 }
