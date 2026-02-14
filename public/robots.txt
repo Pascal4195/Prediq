@@ -1,5 +1,10 @@
+# Allow all search engines to crawl the site
 User-agent: *
-Disallow:
+Allow: /
 
-# Optional: allow crawling of only certain paths
-# Allow: /pages/
+# Disallow specific folders if you have them (Optional)
+# Disallow: /admin
+# Disallow: /private
+
+# Point to your sitemap (Update this once your site is live)
+# Sitemap: https://your-render-url.onrender.com/sitemap.xml
