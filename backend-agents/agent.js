@@ -3,7 +3,6 @@ import http from 'http';
 import MarketABI from '../src/abis/Market.json';
 
 // --- 1. FREE TIER MONITOR SERVER ---
-// This keeps Render from shutting down the app for not having a "face"
 const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end("PREDIQ AGENTS STATUS: ACTIVE 🟢");
@@ -13,9 +12,8 @@ server.listen(PORT, () => console.log(`Monitor server running on port ${PORT}`))
 
 // --- 2. AGENT CONFIGURATION ---
 const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz");
-const MARKET_ADDRESS = "0xYourMarketAddress..."; 
+const MARKET_ADDRESS = "0xF8262596823a3c7fcd47F407138bcbbbdB4D5F18"; 
 
-// Trio initialized via Render Secrets (Option A)
 const agents = [
   new ethers.Wallet(process.env.AGENT_ALPHA_KEY, provider),
   new ethers.Wallet(process.env.AGENT_SIGMA_KEY, provider),
@@ -27,20 +25,24 @@ async function runPulse() {
   console.log("💓 Agents pulse started...");
   try {
     const market = new ethers.Contract(MARKET_ADDRESS, MarketABI, provider);
+    
+    // We assume getActiveTasks exists on your Market contract
     const activeTasks = await market.getActiveTasks();
 
     for (const task of activeTasks) {
       for (const agent of agents) {
         const agentContract = market.connect(agent);
         
-        // Strategy: 50/50 Random bet for testnet activity
+        // Simple strategy: Alternating bets or random
         const prediction = Math.random() > 0.5; 
         
-        console.log(`Agent ${agent.address.slice(0,6)} placing ${prediction ? 'YES' : 'NO'} bet...`);
+        console.log(`Agent ${agent.address.slice(0,6)} betting on Task ${task.id}...`);
         const tx = await agentContract.placeBet(task.id, prediction, {
-          value: ethers.parseEther("0.01") // Betting 0.01 MON
+          value: ethers.parseEther("0.01"),
+          gasLimit: 500000 // Added gas limit for Monad stability
         });
         await tx.wait();
+        console.log(`✅ Bet confirmed for ${agent.address.slice(0,6)}`);
       }
     }
   } catch (err) {
