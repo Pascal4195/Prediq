@@ -2,35 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    color-scheme: dark;
-  }
+:root {
+  color-scheme: dark;
+}
 
-  body {
-    /* Fixed: Changed text-slate-200 to text-gray-200 to prevent build error */
-    @apply bg-[#050508] text-gray-200 antialiased;
-    font-family: 'Orbitron', sans-serif !important;
-    
-    /* Animated Neon Glow Background (The Clouds) */
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.25) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.25) 0px, transparent 50%),
-      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
-    background-attachment: fixed;
-    animation: pulseBG 10s ease-in-out infinite alternate;
-  }
+body {
+  margin: 0;
+  /* Using standard hex codes to avoid Tailwind build errors */
+  background-color: #050508;
+  color: #e5e7eb; 
+  font-family: 'Orbitron', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  
+  /* HIGH-DEFINITION ANIMATED CLOUDS */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.3) 0px, transparent 55%),
+    radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.3) 0px, transparent 55%),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+  background-attachment: fixed;
+  animation: pulseBG 8s ease-in-out infinite alternate;
 }
 
 @keyframes pulseBG {
-  0% { filter: hue-rotate(0deg) brightness(1); }
-  100% { filter: hue-rotate(10deg) brightness(1.2); }
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.3); }
 }
 
-@layer components {
-  .glow-border {
-    @apply border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all;
-  }
+/* Custom glowing utility that won't break the build */
+.market-card-glow {
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+  transition: all 0.3s ease;
+}
+
+.market-card-glow:hover {
+  border-color: rgba(6, 182, 212, 0.6);
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
 }
