@@ -1,37 +1,28 @@
 import { ethers } from "ethers";
 
-// 1. YOUR CONTRACT ADDRESSES
 export const CONTRACT_ADDRESSES = {
-  REGISTRY: "0x09E1f21bE716c1e4c269A415D8287f92cfA748b4",
-  ORACLE: "0x01C2f0320c90dB68b1F09C898F362EA2591B67DE",
-  MARKET: "0xF8262596823a3c7fcd47F407138bcbbbdB4D5F18"
+  REGISTRY: "0x09E1fB0E763A5a35926B637B09F3692348c41f77",
+  ORACLE: "0x4013449080A6477e38383321477754B4B1842880",
+  MARKET: "0x9816E8e88865616466907406a4891b6107567840"
 };
 
-// 2. NETWORK CONFIG (MONAD TESTNET)
-export const MONAD_RPC_URL = "https://testnet-rpc.monad.xyz";
-export const CHAIN_ID = 10143; // Monad Testnet Chain ID
-
-// 3. PROVIDER HELPERS
-// This one is for "Read-Only" actions (No wallet needed)
-export const getReadOnlyProvider = () => {
-  return new ethers.JsonRpcProvider(MONAD_RPC_URL);
+export const ASSET_MAP = {
+  "1": { name: "BTC", symbol: "₿" },
+  "2": { name: "ETH", symbol: "Ξ" },
+  "3": { name: "MON", symbol: "M" }
 };
 
-// This one is for "Write" actions (Requires MetaMask)
-export const getSigner = async () => {
-  if (!window.ethereum) {
-    throw new Error("MetaMask is not installed. Please install it to interact.");
+// This fixes the "getProvider is not exported" error from your logs
+export const getProvider = () => {
+  if (typeof window !== "undefined" && window.ethereum) {
+    return new ethers.BrowserProvider(window.ethereum);
   }
-  
-  // Connect to MetaMask
-  const provider = new ethers.BrowserProvider(window.ethereum);
-  
-  // Check if we are on the right network
-  const network = await provider.getNetwork();
-  if (Number(network.chainId) !== CHAIN_ID) {
-    alert("Please switch your MetaMask to the Monad Testnet!");
-  }
+  return null;
+};
 
+export const getContract = async (address, abi) => {
+  const provider = getProvider();
+  if (!provider) return null;
   const signer = await provider.getSigner();
-  return signer;
+  return new ethers.Contract(address, abi, signer);
 };
