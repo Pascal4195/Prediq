@@ -1,50 +1,52 @@
 import { ethers } from 'ethers';
-import MarketABI from '../src/abis/Market.json'; //
-import { getBinancePrice } from './utils/binance.js'; // The binance.js we discussed!
+import http from 'http';
+import MarketABI from '../src/abis/Market.json';
 
+// --- 1. FREE TIER MONITOR SERVER ---
+// This keeps Render from shutting down the app for not having a "face"
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end("PREDIQ AGENTS STATUS: ACTIVE 🟢");
+});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Monitor server running on port ${PORT}`));
+
+// --- 2. AGENT CONFIGURATION ---
 const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz");
-const marketAddress = "0xYourMarketAddress...";
+const MARKET_ADDRESS = "0xYourMarketAddress..."; 
 
-// Load our Trio from Render Secrets
+// Trio initialized via Render Secrets (Option A)
 const agents = [
   new ethers.Wallet(process.env.AGENT_ALPHA_KEY, provider),
   new ethers.Wallet(process.env.AGENT_SIGMA_KEY, provider),
   new ethers.Wallet(process.env.AGENT_BETA_KEY, provider)
 ];
 
-// THE ACTIVITY FUNCTION
+// --- 3. THE HEARTBEAT (PULSE) ---
 async function runPulse() {
-  console.log("💓 Agents are checking market conditions...");
-  
+  console.log("💓 Agents pulse started...");
   try {
-    const market = new ethers.Contract(marketAddress, MarketABI, provider);
-    const activeTasks = await market.getActiveTasks(); // Matches TaskViewPage logic
+    const market = new ethers.Contract(MARKET_ADDRESS, MarketABI, provider);
+    const activeTasks = await market.getActiveTasks();
 
     for (const task of activeTasks) {
-      // 1. Get Real-World Price (e.g., BTC)
-      const realPrice = await getBinancePrice(task.symbol); 
-      const strikePrice = ethers.formatUnits(task.targetPrice, 8);
-
-      // 2. Each Agent Decides
       for (const agent of agents) {
         const agentContract = market.connect(agent);
         
-        // Simple logic: If real price is higher than contract strike, bet UP
-        const prediction = parseFloat(realPrice) > parseFloat(strikePrice);
+        // Strategy: 50/50 Random bet for testnet activity
+        const prediction = Math.random() > 0.5; 
         
-        console.log(`Agent ${agent.address.slice(0,6)} betting ${prediction ? 'YES' : 'NO'}`);
-        
+        console.log(`Agent ${agent.address.slice(0,6)} placing ${prediction ? 'YES' : 'NO'} bet...`);
         const tx = await agentContract.placeBet(task.id, prediction, {
-          value: ethers.parseEther("0.05") 
+          value: ethers.parseEther("0.01") // Betting 0.01 MON
         });
         await tx.wait();
       }
     }
   } catch (err) {
-    console.error("Pulse failed:", err);
+    console.error("Pulse error:", err.message);
   }
 }
 
-// RUN EVERY 5 MINUTES
-setInterval(runPulse, 300000); 
-      
+// Check every 10 minutes
+setInterval(runPulse, 600000);
