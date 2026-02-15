@@ -1,53 +1,54 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const TaskCard = ({ taskQuestion, yesPercent, noPercent, numAgents, totalMonads, onViewTask }) => {
+const TaskCard = ({ id, taskQuestion, yesPercent, noPercent, numAgents, totalMonads }) => {
   return (
-    <div 
-      onClick={onViewTask}
-      className="bg-black border border-gray-800 hover:border-cyan-500/50 transition-all group cursor-pointer relative overflow-hidden flex flex-col"
-    >
-      {/* Top Accessory Bar */}
-      <div className="flex justify-between items-center p-3 border-b border-gray-900 bg-gray-900/30">
-        <span className="text-[10px] font-black text-cyan-500/60 uppercase tracking-widest">Feed_Live // 0x42</span>
-        <div className="flex gap-1">
-          <div className="w-1.5 h-1.5 bg-cyan-500 animate-pulse" />
-          <div className="w-1.5 h-1.5 bg-gray-700" />
-        </div>
+    <div className="bg-[#0a0a0a] border border-cyan-500/20 p-6 relative group hover:border-cyan-500/50 transition-all shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+      {/* Decorative Corner */}
+      <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-500/30 group-hover:border-cyan-500 transition-colors" />
+      
+      <div className="flex justify-between items-start mb-4">
+        <span className="text-[10px] font-black text-cyan-500 uppercase tracking-widest border border-cyan-500/30 px-2 py-0.5">
+          Active_Market_ID: {id}
+        </span>
       </div>
 
-      <div className="p-5 flex-1">
-        <h3 className="text-lg font-black uppercase italic tracking-tighter leading-tight mb-6 group-hover:text-cyan-400 transition-colors">
-          {taskQuestion}
-        </h3>
+      <h3 className="text-xl font-black uppercase italic mb-6 leading-tight tracking-tighter group-hover:text-cyan-400 transition-colors">
+        {taskQuestion}
+      </h3>
 
-        <div className="space-y-4">
-          {/* Probability Bar */}
+      <div className="space-y-4">
+        {/* Probability Bar */}
+        <div className="relative">
+          <div className="flex justify-between text-[10px] font-bold uppercase mb-1 tracking-widest">
+            <span className="text-green-400">Yes {yesPercent}%</span>
+            <span className="text-red-500">No {noPercent}%</span>
+          </div>
+          <div className="h-2 w-full bg-gray-900 overflow-hidden flex border border-gray-800">
+            <div className="h-full bg-green-500" style={{ width: `${yesPercent}%` }} />
+            <div className="h-full bg-red-600" style={{ width: `${noPercent}%` }} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 border-t border-gray-900 pt-4">
           <div>
-            <div className="flex justify-between text-[10px] font-bold uppercase mb-1">
-              <span className="text-green-500">YES {yesPercent}%</span>
-              <span className="text-red-500">NO {noPercent}%</span>
-            </div>
-            <div className="h-1.5 w-full bg-gray-900 flex">
-              <div className="h-full bg-green-500/80" style={{ width: `${yesPercent}%` }} />
-              <div className="h-full bg-red-600/80" style={{ width: `${noPercent}%` }} />
-            </div>
+            <div className="text-[9px] text-gray-500 uppercase font-bold">Agents_Deployed</div>
+            <div className="text-sm font-black italic">{numAgents}</div>
           </div>
-
-          <div className="grid grid-cols-2 gap-4 border-t border-gray-900 pt-4">
-            <div>
-              <div className="text-[9px] text-gray-500 uppercase font-bold">Nodes_Active</div>
-              <div className="text-sm font-black">{numAgents}</div>
-            </div>
-            <div>
-              <div className="text-[9px] text-gray-500 uppercase font-bold">Pool_Volume</div>
-              <div className="text-sm font-black text-cyan-500">{totalMonads.toLocaleString()} M</div>
-            </div>
+          <div>
+            <div className="text-[9px] text-gray-500 uppercase font-bold">Total_Staked</div>
+            <div className="text-sm font-black italic text-cyan-500">{totalMonads} MON</div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Interactive Edge */}
-      <div className="bg-cyan-500/0 group-hover:bg-cyan-500/10 h-1 transition-all" />
+        {/* Action Button - Now links to TaskViewPage */}
+        <Link 
+          to={`/task/${id}`}
+          className="block w-full text-center bg-cyan-500/10 border border-cyan-500/50 text-cyan-400 text-xs font-black py-3 uppercase hover:bg-cyan-500 hover:text-black transition-all skew-x-[-12deg]"
+        >
+          <span className="inline-block skew-x-[12deg]">View_Market_Feed</span>
+        </Link>
+      </div>
     </div>
   );
 };
