@@ -1,21 +1,23 @@
 const { ethers } = require("ethers");
 const path = require("path");
 
-// creator.js is in src, abis is in src/abis
-const masterArenaAbi = require(path.join(__dirname, "abis", "MasterArena.json"));
-// Jump OUT of src, INTO backend-agents for binance
-const bnbData = require(path.join(__dirname, "..", "backend-agents", "binance"));
+// Bulletproof paths
+const binancePath = path.resolve(__dirname, "..", "backend-agents", "binance.js");
+const abiPath = path.resolve(__dirname, "abis", "MasterArena.json");
+
+const bnbData = require(binancePath);
+const masterArenaAbi = require(abiPath);
 
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://rpc.monad.xyz");
 const adminWallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
 const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, masterArenaAbi, adminWallet);
 
-async function create() {
+async function manage() {
     try {
         const price = await bnbData.getBTCPrice();
-        console.log("Creator Pulse - BTC Price:", price);
+        console.log(`[Creator] BTC Price: ${price}`);
     } catch (e) { console.error("Creator Error:", e.message); }
 }
 
-setInterval(create, 15 * 60 * 1000);
-create();
+setInterval(manage, 15 * 60 * 1000);
+manage();
