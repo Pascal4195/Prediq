@@ -1,6 +1,7 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
+import Navbar from './Navbar'; // Changed from ../components/
 import { useWallet } from '../context/WalletContext';
+// ... rest of code
 
 const AgentRegistryPage = () => {
   const { address, balance, isConnected, connect } = useWallet();
