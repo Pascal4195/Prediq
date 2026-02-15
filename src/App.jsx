@@ -20,34 +20,35 @@ function App() {
 
   const connectWallet = async () => {
     const provider = getProvider();
-    if (!provider) return alert("Please open in a mobile browser with a wallet (like MetaMask)!");
+    if (!provider) return alert("Please use a Web3 browser like MetaMask!");
     const signer = await provider.getSigner();
     setAccount(await signer.getAddress());
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#020205] flex items-center justify-center text-cyan-400 font-['Orbitron'] tracking-widest">
+      <div style={{backgroundColor: '#020205', color: '#06b6d4'}} className="min-h-screen flex items-center justify-center font-['Orbitron']">
         INITIALIZING_SYSTEM...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#020205] text-white font-['Orbitron'] overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+    <div style={{backgroundColor: '#020205'}} className="min-h-screen text-white font-['Orbitron'] overflow-x-hidden">
       
-      {/* 1. TOP NAVIGATION */}
-      <nav className="relative z-10 p-6 flex justify-between items-center max-w-7xl mx-auto">
+      {/* 1. TOP NAV: Forced Cyan Logo and Border */}
+      <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 border border-cyan-500 flex items-center justify-center rotate-45 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-            <Zap className="-rotate-45 text-cyan-400" size={16} fill="currentColor" />
+          <div style={{borderColor: '#06b6d4', boxShadow: '0 0 10px rgba(6,182,212,0.2)'}} className="w-8 h-8 border flex items-center justify-center rotate-45">
+            <Zap style={{color: '#06b6d4'}} className="-rotate-45" size={16} fill="currentColor" />
           </div>
-          <span className="text-xl font-black tracking-tighter italic text-cyan-400">PREDIQ</span>
+          <span style={{color: '#06b6d4'}} className="text-xl font-black italic tracking-tighter">PREDIQ</span>
         </div>
         
         <button 
           onClick={connectWallet} 
-          className="border border-white/20 px-4 py-1.5 text-[10px] uppercase tracking-widest bg-black/40 hover:bg-white hover:text-black transition-all font-bold"
+          style={{backgroundColor: 'rgba(0,0,0,0.5)', borderColor: 'rgba(255,255,255,0.2)'}}
+          className="border px-4 py-1.5 text-[10px] uppercase tracking-widest font-bold hover:bg-white hover:text-black transition-all"
         >
           <div className="flex items-center gap-2">
             <Wallet size={12} />
@@ -56,54 +57,61 @@ function App() {
         </button>
       </nav>
 
-      {/* 2. HERO HEADER - EXACTLY AS PER SCREENSHOT */}
-      <main className="relative z-10 max-w-7xl mx-auto px-6 pt-12 pb-20">
-        <div className="text-center mb-24">
-          <h1 className="text-5xl md:text-7xl font-black mb-4 tracking-tighter uppercase italic">
-            ELITE <span className="text-cyan-400">FORECASTING</span>
-          </h1>
-          <p className="text-[10px] tracking-[0.8em] text-slate-500 uppercase font-bold opacity-80">
-            MONAD HIGH-SPEED NETWORK
-          </p>
-        </div>
+      {/* 2. HERO HEADER: Bold Italic Style */}
+      <header className="text-center mt-12 mb-20 px-4">
+        <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 uppercase italic">
+          ELITE <span style={{color: '#06b6d4'}}>FORECASTING</span>
+        </h1>
+        <p className="text-[10px] tracking-[0.8em] text-slate-500 uppercase font-bold opacity-80">
+          MONAD HIGH-SPEED NETWORK
+        </p>
+      </header>
 
-        {/* 3. THE HORIZONTAL GRID - FIXING THE VERTICAL STACK ISSUE */}
-        <div className="w-full overflow-x-auto pb-10 scrollbar-hide">
-          <div className="flex flex-row justify-center gap-6 min-w-max px-4">
-            {Object.entries(ASSET_MAP).map(([id, asset]) => (
-              <div 
-                key={id} 
-                className="bg-[#08080c] border-l-[3px] border-cyan-500 p-8 w-[300px] h-[220px] flex flex-col justify-between shadow-2xl hover:bg-[#0c0c14] transition-colors"
-              >
-                <div className="flex justify-between items-start">
-                  <span className="text-3xl font-bold text-white/90">{asset.symbol}</span>
-                  <span className="text-[9px] text-slate-700 font-bold uppercase tracking-widest">MKT_{id}</span>
-                </div>
-                
-                <div>
-                  <h3 className="text-xl font-bold mb-4 italic tracking-tight uppercase">{asset.name}</h3>
-                  <div className="w-12 h-[2px] bg-cyan-500/50 mb-6"></div>
-                  <button className="w-full py-3 bg-[#111] border border-white/5 text-[9px] font-bold uppercase tracking-[0.3em] hover:border-cyan-500 hover:text-cyan-400 transition-all">
-                    OPEN TERMINAL
-                  </button>
-                </div>
+      {/* 3. THE HORIZONTAL GRID: Forced Solid Colors & Box Shapes */}
+      <div className="w-full overflow-x-auto pb-12 px-6 scrollbar-hide">
+        <div className="flex flex-row gap-8 min-w-max mx-auto justify-start md:justify-center">
+          {Object.entries(ASSET_MAP).map(([id, asset]) => (
+            <div 
+              key={id} 
+              style={{
+                backgroundColor: '#0a0a0f', 
+                borderLeft: '4px solid #06b6d4',
+                boxShadow: '20px 20px 60px rgba(0,0,0,0.5)'
+              }} 
+              className="flex-shrink-0 w-[320px] h-[240px] p-8 flex flex-col justify-between transition-transform hover:scale-[1.02]"
+            >
+              <div className="flex justify-between items-start">
+                <span className="text-4xl font-bold text-white/90">{asset.symbol}</span>
+                <span className="text-[10px] text-slate-700 font-bold uppercase tracking-widest">MKT_{id}</span>
               </div>
-            ))}
-          </div>
+              
+              <div>
+                <h3 className="text-2xl font-bold mb-4 italic tracking-tight uppercase">{asset.name}</h3>
+                {/* THE ACCENT BAR: This was missing color in your screenshot */}
+                <div style={{backgroundColor: '#06b6d4'}} className="w-14 h-[3px] mb-6"></div>
+                <button 
+                  style={{backgroundColor: '#121218', borderColor: 'rgba(255,255,255,0.05)'}}
+                  className="w-full py-3 border text-[10px] font-black uppercase tracking-[0.3em] hover:text-cyan-400 transition-all"
+                >
+                  OPEN TERMINAL
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* 4. SYSTEM STATUS FOOTER */}
-        <div className="mt-16 flex flex-row gap-10 px-4 text-[9px] font-bold uppercase tracking-widest text-slate-600">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.8)] animate-pulse"></div>
-            <Globe size={12} className="opacity-50" /> #MONAD_TEST
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
-            <Cpu size={12} className="opacity-50" /> SYSTEM_NOMINAL
-          </div>
+      {/* 4. FOOTER: Status Indicators with Glow */}
+      <footer className="max-w-7xl mx-auto mt-12 flex gap-10 px-8 text-[10px] font-black uppercase tracking-widest text-slate-600">
+        <div className="flex items-center gap-2">
+          <div style={{backgroundColor: '#06b6d4', boxShadow: '0 0 10px #06b6d4'}} className="w-2 h-2 rounded-full animate-pulse"></div>
+          <Globe size={12}/> #MONAD_TEST
         </div>
-      </main>
+        <div className="flex items-center gap-2">
+          <div style={{backgroundColor: '#22c55e', boxShadow: '0 0 10px #22c55e'}} className="w-2 h-2 rounded-full"></div>
+          <Cpu size={12}/> SYSTEM_NOMINAL
+        </div>
+      </footer>
     </div>
   );
 }
