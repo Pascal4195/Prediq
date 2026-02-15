@@ -5,28 +5,18 @@
 @layer base {
   body {
     margin: 0;
-    background-color: #020205; /* Matches the dark target background */
-    color: #e2e8f0; /* Manual slate-200 to avoid build errors */
+    background-color: #020205;
+    color: #e2e8f0; /* Manual hex for slate-200 to fix build crash */
     font-family: 'Orbitron', sans-serif !important;
-    -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
 }
 
-@layer components {
-  /* This creates the 'Elite' card container look from your screenshot */
-  .terminal-card {
-    background-color: #0a0a0f;
-    border-left: 3px solid #06b6d4; /* The signature Cyan border */
-    padding: 2.5rem;
-    height: 240px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: all 0.3s ease;
-  }
-
-  .terminal-card:hover {
-    background-color: #0c0c14;
-  }
+/* Hide scrollbar but allow horizontal movement if screen is too small */
+.overflow-x-auto {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
 }
