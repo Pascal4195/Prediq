@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from './Navbar'; // Changed from ../components/
-import TaskCard from '..TaskCard';
+import TaskCard from './TaskCard';
 // ... rest of imports
 
 import { useTaskManager } from '../hooks/useTaskManager';
