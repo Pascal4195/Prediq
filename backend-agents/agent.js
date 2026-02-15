@@ -1,7 +1,10 @@
 const { ethers } = require("ethers");
-// Path: Both are in backend-agents, so use ./
-const bnbData = require("./binance"); 
-const masterArenaAbi = require("../abis/MasterArena.json");
+const path = require("path");
+
+// Path: go up from backend-agents -> into src -> into abis
+const masterArenaAbi = require(path.join(__dirname, "..", "src", "abis", "MasterArena.json"));
+// Path: binance is in the same folder (backend-agents)
+const bnbData = require(path.join(__dirname, "binance"));
 
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://rpc.monad.xyz");
 const contractAddress = process.env.CONTRACT_ADDRESS;
@@ -51,7 +54,7 @@ async function processAgent(privateKey) {
                 await claimTx.wait();
                 console.log("> Winnings claimed!");
             } catch (e) {
-                // Skips if already claimed
+                // Skips if already claimed or lost
             }
         }
     } catch (err) {
