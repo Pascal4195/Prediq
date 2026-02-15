@@ -1,23 +1,26 @@
 const { ethers } = require("ethers");
 const path = require("path");
-const fs = require('fs');
+const bnbData = require("./binance"); // Same folder
 
-// binance is in backend-agents, abis is in the same folder as this file
-const bnbData = require(path.join(__dirname, "..", "backend-agents", "binance"));
-const masterArenaAbi = require(path.join(__dirname, "abis", "MasterArena.json"));
+// Look up one level, then into src/abis
+const masterArenaAbi = require(path.join(__dirname, "..", "src", "abis", "MasterArena.json"));
 
-const TARGETS_FILE = path.join(__dirname, 'targets.json');
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://rpc.monad.xyz");
-const adminWallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
-const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, masterArenaAbi, adminWallet);
+const contractAddress = process.env.CONTRACT_ADDRESS;
+const privateKeys = [process.env.PRIVATE_KEY_1, process.env.PRIVATE_KEY_2, process.env.PRIVATE_KEY_3];
 
-async function manageMarkets() {
-    try {
-        const btcPrice = await bnbData.getBTCPrice();
-        console.log(`Creator checking price: ${btcPrice}`);
-        // Add your create/resolve logic here as previously provided
-    } catch (err) { console.error("Creator error:", err.message); }
+async function run() {
+    for (const key of privateKeys) {
+        if (!key) continue;
+        const wallet = new ethers.Wallet(key, provider);
+        const contract = new ethers.Contract(contractAddress, masterArenaAbi, wallet);
+        try {
+            const taskCount = await contract.taskCount();
+            console.log(`Agent ${wallet.address} checking task ${taskCount}`);
+            // Logic for betting...
+        } catch (e) { console.error(e.message); }
+    }
 }
 
-setInterval(manageMarkets, 15 * 60 * 1000);
-manageMarkets();
+setInterval(run, 15 * 60 * 1000);
+run();
