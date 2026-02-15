@@ -1,14 +1,13 @@
 const { ethers } = require("ethers");
-const path = require("path");
 
-// Bulletproof pathing for Render
-const abiPath = path.join(process.cwd(), "src", "abis", "MasterArena.json");
-const MasterArena = require(abiPath);
+// Fixes the 12:15 AM "src/src" error
+const MasterArena = require("./abis/MasterArena.json");
 
 async function startCreator() {
     console.log("Creator (Boss) is starting...");
-    console.log("ABI loaded successfully from:", abiPath);
-    // Paste your original Boss logic (rounds, etc.) below this line
+    console.log("ABI loaded successfully from local abis folder.");
+    
+    // PASTE YOUR ORIGINAL BOSS LOGIC BELOW
 }
 
 startCreator().catch((error) => {
