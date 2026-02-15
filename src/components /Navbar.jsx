@@ -1,9 +1,16 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-const Navbar = ({ activeTab, onTabChange, walletInfo, onConnect, isConnected }) => {
-  const tabs = ['Arena', 'Leaderboard', 'Registry'];
+const Navbar = ({ walletInfo, onConnect, isConnected }) => {
+  const location = useLocation();
+  
+  // Define tabs and their paths
+  const tabs = [
+    { name: 'Arena', path: '/' },
+    { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'Registry', path: '/registry' }
+  ];
 
-  // Helper to truncate address for the "Elite" look
   const truncateAddress = (addr) => {
     if (!addr || addr === "NOT_CONNECTED") return "0x000...000";
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
@@ -15,35 +22,34 @@ const Navbar = ({ activeTab, onTabChange, walletInfo, onConnect, isConnected }) 
         
         {/* Left Side: Logo & Tabs */}
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => onTabChange('Arena')}>
+          <Link to="/" className="flex items-center gap-2 cursor-pointer">
             <div className="w-8 h-8 bg-cyan-500 flex items-center justify-center rotate-45">
               <span className="text-black font-black -rotate-45 text-xl">P</span>
             </div>
             <span className="text-2xl font-black tracking-tighter text-white uppercase hidden sm:block">
               Prediq
             </span>
-          </div>
+          </Link>
 
           <div className="hidden md:flex items-center">
             {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => onTabChange(tab)}
+              <Link
+                key={tab.name}
+                to={tab.path}
                 className={`px-6 h-16 flex items-center text-sm font-bold transition-all border-b-2 ${
-                  activeTab === tab 
+                  location.pathname === tab.path 
                     ? 'border-cyan-500 text-cyan-400 bg-cyan-500/5' 
                     : 'border-transparent text-gray-500 hover:text-cyan-300'
                 }`}
               >
-                {tab.toUpperCase()}
-              </button>
+                {tab.name.toUpperCase()}
+              </Link>
             ))}
           </div>
         </div>
 
         {/* Right Side: Status & Wallet */}
         <div className="flex items-center gap-4">
-          {/* Network Indicator */}
           <div className="hidden lg:flex items-center gap-4 px-4 py-1 border-x border-cyan-500/20">
             <div className="flex flex-col items-end">
               <span className="text-[10px] text-gray-500 leading-none uppercase tracking-tighter">System_Status</span>
@@ -54,7 +60,6 @@ const Navbar = ({ activeTab, onTabChange, walletInfo, onConnect, isConnected }) 
             </div>
           </div>
           
-          {/* Wallet Button */}
           <button 
             onClick={isConnected ? null : onConnect}
             className={`flex items-center gap-3 bg-black border px-4 py-2 transition-all group ${
