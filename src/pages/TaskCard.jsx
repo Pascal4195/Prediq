@@ -1,53 +1,71 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 const TaskCard = ({ id, taskQuestion, yesPercent, noPercent, numAgents, totalMonads }) => {
+  // Calculate Decimal Odds for the UI
+  const yesOdds = (100 / parseFloat(yesPercent)).toFixed(2);
+  const noOdds = (100 / parseFloat(noPercent)).toFixed(2);
+
   return (
-    <div className="bg-[#0a0a0a] border border-cyan-500/20 p-6 relative group hover:border-cyan-500/50 transition-all shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-      {/* Decorative Corner */}
-      <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-500/30 group-hover:border-cyan-500 transition-colors" />
+    <div className="group relative bg-[#0a0a0a] border border-cyan-500/20 p-6 hover:border-cyan-500 transition-all duration-500 overflow-hidden">
+      {/* Background Glow Effect */}
+      <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
       
-      <div className="flex justify-between items-start mb-4">
-        <span className="text-[10px] font-black text-cyan-500 uppercase tracking-widest border border-cyan-500/30 px-2 py-0.5">
-          Active_Market_ID: {id}
+      {/* Task Header */}
+      <div className="flex justify-between items-start mb-6">
+        <span className="text-[10px] font-black text-cyan-500 tracking-[0.2em] uppercase">
+          ID_REF: {id}
         </span>
+        <div className="flex gap-2">
+          <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-gray-400">
+            {numAgents} AGENTS
+          </span>
+        </div>
       </div>
 
-      <h3 className="text-xl font-black uppercase italic mb-6 leading-tight tracking-tighter group-hover:text-cyan-400 transition-colors">
+      {/* Question */}
+      <h3 className="text-xl font-bold leading-tight mb-8 group-hover:text-cyan-400 transition-colors uppercase italic">
         {taskQuestion}
       </h3>
 
-      <div className="space-y-4">
-        {/* Probability Bar */}
-        <div className="relative">
-          <div className="flex justify-between text-[10px] font-bold uppercase mb-1 tracking-widest">
-            <span className="text-green-400">Yes {yesPercent}%</span>
-            <span className="text-red-500">No {noPercent}%</span>
+      {/* Probability & Odds Bars */}
+      <div className="space-y-6 relative z-10">
+        {/* YES OPTION */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-[10px] font-bold tracking-widest uppercase">
+            <span className="text-cyan-500">YES Probability: {yesPercent}%</span>
+            <span className="text-white">Payout: {yesOdds}x</span>
           </div>
-          <div className="h-2 w-full bg-gray-900 overflow-hidden flex border border-gray-800">
-            <div className="h-full bg-green-500" style={{ width: `${yesPercent}%` }} />
-            <div className="h-full bg-red-600" style={{ width: `${noPercent}%` }} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 border-t border-gray-900 pt-4">
-          <div>
-            <div className="text-[9px] text-gray-500 uppercase font-bold">Agents_Deployed</div>
-            <div className="text-sm font-black italic">{numAgents}</div>
-          </div>
-          <div>
-            <div className="text-[9px] text-gray-500 uppercase font-bold">Total_Staked</div>
-            <div className="text-sm font-black italic text-cyan-500">{totalMonads} MON</div>
+          <div className="h-2 bg-white/5 border border-white/10 overflow-hidden">
+            <div 
+              className="h-full bg-cyan-500 transition-all duration-1000" 
+              style={{ width: `${yesPercent}%` }}
+            />
           </div>
         </div>
 
-        {/* Action Button - Now links to TaskViewPage */}
-        <Link 
-          to={`/task/${id}`}
-          className="block w-full text-center bg-cyan-500/10 border border-cyan-500/50 text-cyan-400 text-xs font-black py-3 uppercase hover:bg-cyan-500 hover:text-black transition-all skew-x-[-12deg]"
-        >
-          <span className="inline-block skew-x-[12deg]">View_Market_Feed</span>
-        </Link>
+        {/* NO OPTION */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-[10px] font-bold tracking-widest uppercase">
+            <span className="text-pink-500">NO Probability: {noPercent}%</span>
+            <span className="text-white">Payout: {noOdds}x</span>
+          </div>
+          <div className="h-2 bg-white/5 border border-white/10 overflow-hidden">
+            <div 
+              className="h-full bg-pink-500 transition-all duration-1000" 
+              style={{ width: `${noPercent}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Info */}
+      <div className="mt-8 pt-4 border-t border-white/5 flex justify-between items-center">
+        <div className="text-[10px] text-gray-500">
+          TOTAL_LIQUIDITY: <span className="text-white">{totalMonads} MON</span>
+        </div>
+        <button className="text-[10px] font-black text-cyan-500 hover:text-white underline tracking-widest">
+          TRADE_POSITION →
+        </button>
       </div>
     </div>
   );
