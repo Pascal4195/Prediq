@@ -1,9 +1,11 @@
 const { ethers } = require("ethers");
 const fs = require('fs');
 const path = require('path');
-// Path: Go up from src, then into backend-agents for binance
-const bnbData = require("../backend-agents/binance"); 
-const masterArenaAbi = require("../abis/MasterArena.json");
+
+// Path: abis is in the same folder as creator.js (src)
+const masterArenaAbi = require(path.join(__dirname, "abis", "MasterArena.json"));
+// Path: go up from src -> into backend-agents for binance
+const bnbData = require(path.join(__dirname, "..", "backend-agents", "binance"));
 
 const TARGETS_FILE = path.join(__dirname, 'targets.json');
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://rpc.monad.xyz");
