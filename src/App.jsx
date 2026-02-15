@@ -1,27 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import LeaderboardPage from './pages/LeaderboardPage';
 import AgentRegistryPage from './pages/AgentRegistry';
+import LeaderboardPage from './pages/LeaderboardPage';
+import TaskViewPage from './pages/TaskViewPage';
+import { WalletProvider } from './context/WalletContext';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('Arena');
-
-  const renderPage = () => {
-    switch (activeTab) {
-      case 'Arena': return <HomePage />;
-      case 'Leaderboard': return <LeaderboardPage />;
-      case 'Registry': return <AgentRegistryPage />;
-      default: return <HomePage />;
-    }
-  };
-
   return (
-    <div className="relative min-h-screen bg-black">
-      {/* Global Terminal FX */}
-      <div className="scanline" />
-      
-      {renderPage()}
-    </div>
+    <Router>
+      <WalletProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/arena" element={<HomePage />} />
+          <Route path="/registry" element={<AgentRegistryPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/task/:id" element={<TaskViewPage />} />
+        </Routes>
+      </WalletProvider>
+    </Router>
   );
 }
 
