@@ -3,34 +3,30 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    color-scheme: dark;
-  }
-
   body {
-    @apply bg-[#050508] text-slate-200 antialiased;
+    margin: 0;
+    background-color: #020205; /* Matches the dark target background */
+    color: #e2e8f0; /* Manual slate-200 to avoid build errors */
     font-family: 'Orbitron', sans-serif !important;
-    
-    /* Animated Neon Glow Background */
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.12) 0px, transparent 50%),
-      /* Subtle Cyber-Grid overlay */
-      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
-    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 }
 
 @layer components {
-  /* Custom utility for the "Glow" buttons */
-  .glow-border {
-    @apply border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] hover:shadow-[0_0_25px_rgba(6,182,212,0.3)] transition-all;
+  /* This creates the 'Elite' card container look from your screenshot */
+  .terminal-card {
+    background-color: #0a0a0f;
+    border-left: 3px solid #06b6d4; /* The signature Cyan border */
+    padding: 2.5rem;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
   }
-  
-  /* Cyberpunk cut-corner effect */
-  .clip-path-polygon {
-    clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%);
+
+  .terminal-card:hover {
+    background-color: #0c0c14;
   }
 }
