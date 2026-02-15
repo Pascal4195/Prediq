@@ -2,11 +2,16 @@ const axios = require('axios');
 
 const getPrice = async (symbol) => {
   try {
-    // Fetches real-time price from Binance Public API
-    const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
-    return parseFloat(response.data.price);
+    // CryptoCompare is region-friendly for Render's servers
+    const url = `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=USDT`;
+    const response = await axios.get(url);
+    
+    if (response.data && response.data.USDT) {
+      return parseFloat(response.data.USDT);
+    }
+    throw new Error("Price data missing");
   } catch (error) {
-    console.error(`Error fetching ${symbol} price:`, error);
+    console.error(`Price Fetch Error (${symbol}):`, error.message);
     return null;
   }
 };
