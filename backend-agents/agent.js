@@ -1,54 +1,51 @@
-import { ethers } from 'ethers';
-import http from 'http';
-import MarketABI from '../src/abis/Market.json';
+const { ethers } = require('ethers');
+const { getPrice } = require('./binance');
 
-// --- 1. FREE TIER MONITOR SERVER ---
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end("PREDIQ AGENTS STATUS: ACTIVE 🟢");
-});
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Monitor server running on port ${PORT}`));
+// MONAD MAINNET CONFIG
+const PROVIDER_URL = "https://rpc.monad.xyz"; 
+const CONTRACT_ADDRESS = "0xYour_New_Mainnet_Address"; // MUST MATCH YOUR DEPLOYMENT
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-// --- 2. AGENT CONFIGURATION ---
-const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz");
-const MARKET_ADDRESS = "0xF8262596823a3c7fcd47F407138bcbbbdB4D5F18"; 
-
-const agents = [
-  new ethers.Wallet(process.env.AGENT_ALPHA_KEY, provider),
-  new ethers.Wallet(process.env.AGENT_SIGMA_KEY, provider),
-  new ethers.Wallet(process.env.AGENT_BETA_KEY, provider)
+// Updated ABI to include initial percentage data
+const ABI = [
+  "function createPredictionTask(string question, uint256 initialYes, uint256 initialNo, uint256 deadline) public",
+  "function getActiveTasks() public view returns (tuple(uint256 id, string question, uint256 yesVotes, uint256 noVotes, uint256 totalStaked)[])"
 ];
 
-// --- 3. THE HEARTBEAT (PULSE) ---
-async function runPulse() {
-  console.log("💓 Agents pulse started...");
-  try {
-    const market = new ethers.Contract(MARKET_ADDRESS, MarketABI, provider);
-    
-    // We assume getActiveTasks exists on your Market contract
-    const activeTasks = await market.getActiveTasks();
+const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
+const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
 
-    for (const task of activeTasks) {
-      for (const agent of agents) {
-        const agentContract = market.connect(agent);
-        
-        // Simple strategy: Alternating bets or random
-        const prediction = Math.random() > 0.5; 
-        
-        console.log(`Agent ${agent.address.slice(0,6)} betting on Task ${task.id}...`);
-        const tx = await agentContract.placeBet(task.id, prediction, {
-          value: ethers.parseEther("0.01"),
-          gasLimit: 500000 // Added gas limit for Monad stability
+async function startAgent() {
+  console.log("Prediq Agent Live: Monitoring Markets...");
+
+  // Run immediately on start, then every hour
+  const runTask = async () => {
+    const btcPrice = await getPrice('BTC');
+    
+    if (btcPrice) {
+      const question = `Will BTC stay above $${(btcPrice).toFixed(0)}?`;
+      
+      // We set the initial state to 50/50 probability
+      // This will make your Frontend show "50% Yes" and "2.00x Payout"
+      const initialYes = 50; 
+      const initialNo = 50;
+      const deadline = Math.floor(Date.now() / 1000) + 3600;
+
+      try {
+        const tx = await contract.createPredictionTask(question, initialYes, initialNo, deadline, {
+            gasLimit: 500000 // Added safety gas limit for Mainnet
         });
         await tx.wait();
-        console.log(`✅ Bet confirmed for ${agent.address.slice(0,6)}`);
+        console.log(`Mainnet Success: ${question}`);
+      } catch (err) {
+        console.error("Mainnet Transaction Failed:", err.message);
       }
     }
-  } catch (err) {
-    console.error("Pulse error:", err.message);
-  }
+  };
+
+  runTask();
+  setInterval(runTask, 3600000); 
 }
 
-// Check every 10 minutes
-setInterval(runPulse, 600000);
+startAgent();
