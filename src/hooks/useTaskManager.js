@@ -1,49 +1,45 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getContract, CONTRACT_ADDRESSES } from '../utils/eth';
-import MarketABI from '../abis/Market.json';
+import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+
+// MUST BE THE SAME ADDRESS AS YOUR RENDER BACKEND
+const CONTRACT_ADDRESS = "0xF8262596823a3c7fcd47F407138bcbbbdB4D5F18"; 
+
+const ABI = [
+  "function getActiveTasks() public view returns (tuple(uint256 id, string question, uint256 yesVotes, uint256 noVotes, uint256 totalStaked)[])"
+];
 
 export const useTaskManager = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchTasks = useCallback(async () => {
+  const fetchTasks = async () => {
     try {
-      const contract = await getContract(CONTRACT_ADDRESSES.MARKET, MarketABI);
-      if (!contract) return;
-
-      const data = await contract.getAllTasks();
-      // We only return the raw data, no HTML/JSX here!
-      const formatted = data.map(task => ({
-        id: task.id.toString(),
-        question: task.question,
-        yesPercent: task.yesVotes.toString(),
-        noPercent: task.noVotes.toString(),
-        totalStaked: task.totalAmount.toString(),
-        category: task.category || "GENERAL"
-      }));
+      if (!window.ethereum) return;
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       
-      setTasks(formatted);
+      // Monad Mainnet Chain ID is 143 (Testnet is 10143)
+      const network = await provider.getNetwork();
+      if (network.chainId !== 143 && network.chainId !== 10143) {
+        console.warn("Wrong Network Detected");
+        return;
+      }
+
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+      const data = await contract.getActiveTasks();
+      
+      setTasks(data || []);
     } catch (err) {
-      console.error("Fetch failed", err);
+      console.error("Failed to fetch tasks:", err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]);
+    const interval = setInterval(fetchTasks, 30000); // Auto-refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
 
-  const placeBet = async (id, side, amount) => {
-    try {
-      const contract = await getContract(CONTRACT_ADDRESSES.MARKET, MarketABI);
-      const tx = await contract.vote(id, side === 'YES', { value: amount });
-      await tx.wait();
-      return { success: true };
-    } catch (err) {
-      return { success: false, error: err };
-    }
-  };
-
-  return { tasks, loading, placeBet, refresh: fetchTasks };
+  return { tasks, loading, refresh: fetchTasks };
 };
