@@ -1,17 +1,13 @@
 {
-  "name": "prediq-master",
+  "name": "prediq-arena",
   "version": "1.0.0",
   "scripts": {
-    "build": "echo 'No build needed'",
-    "start": "concurrently \"node backend-agents/agents.js\" \"node src/creator.js\" \"node frontend/server.js\"",
-    "agents": "node backend-agents/agents.js",
-    "creator": "node src/creator.js",
-    "frontend": "node frontend/server.js"
+    "start": "concurrently \"node backend-agents/agents.js\" \"node src/creator.js\""
   },
   "dependencies": {
     "axios": "^1.6.0",
     "concurrently": "^8.2.2",
-    "ethers": "^6.10.0",
-    "express": "^4.18.2"
+    "ethers": "^6.10.0"
   }
 }
+
