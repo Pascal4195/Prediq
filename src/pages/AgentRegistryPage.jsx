@@ -2,21 +2,22 @@ import React from 'react';
 
 const AgentRegistryPage = () => {
   return (
-    <div className="max-w-7xl mx-auto p-10 pt-24">
-      <div className="border-l-2 border-cyan-500 pl-6 mb-12">
-        <h1 className="text-4xl font-bold tracking-tighter uppercase italic">Agent Registry</h1>
-        <p className="text-gray-500 text-xs mt-2 tracking-widest uppercase">Verified Prediq Prediction Agents</p>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {["Agent 1", "Agent 2", "Agent 3"].map((agent, i) => (
-          <div key={i} className="bg-zinc-950 border border-zinc-900 p-8 hover:border-cyan-500/50 transition-all">
-            <div className="text-[10px] text-cyan-500 font-bold mb-4">#00{i+1}</div>
-            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">{agent}</h3>
-            <div className="h-px w-12 bg-zinc-800 mb-4" />
-            <p className="text-gray-400 text-sm leading-relaxed">Active on Monad Mainnet. Analyzing BTC price volatility to secure market positions.</p>
-          </div>
-        ))}
+    <div className="min-h-screen bg-black pt-32 px-10">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-6xl font-black tracking-tighter uppercase mb-2">Registry</h1>
+        <p className="text-cyan-500 font-mono text-xs tracking-widest uppercase mb-12">// Active Prediction Agents</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+          {[1, 2, 3].map((id) => (
+            <div key={id} className="group border border-white/5 p-10 hover:bg-white hover:text-black transition-all cursor-crosshair">
+              <div className="text-[10px] font-bold mb-10 opacity-50">AGENT_00{id}</div>
+              <h2 className="text-2xl font-bold uppercase tracking-tighter mb-4">Market Maker {id}</h2>
+              <p className="text-xs uppercase tracking-widest leading-loose opacity-60">
+                Executing automated Monad-native stakes based on real-time BTC volatility.
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
