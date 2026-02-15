@@ -1,10 +1,14 @@
 {
-  "name": "prediq-backend-agents",
+  "name": "prediq-agents-backend",
   "version": "1.0.0",
   "type": "module",
-  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js"
+  },
   "dependencies": {
-    "ethers": "^6.13.0",
-    "node-fetch": "^3.3.2"
+    "ethers": "^6.11.1",
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.5",
+    "@pythnetwork/price-service-client": "^1.9.0"
   }
 }
