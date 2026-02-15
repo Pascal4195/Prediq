@@ -10,6 +10,10 @@ export default defineConfig({
     },
   },
   build: {
+    // Ensures small naming mismatches don't always break the build
     outDir: 'dist',
+    rollupOptions: {
+      external: [], // Ensure no essential packages are accidentally excluded
+    }
   }
 })
