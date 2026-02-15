@@ -1,10 +1,14 @@
 const { ethers } = require("ethers");
-// Looks inside the same src folder for abis
-const MasterArena = require("./abis/MasterArena.json"); 
+const path = require("path");
+
+// Bulletproof pathing for Render
+const abiPath = path.join(process.cwd(), "src", "abis", "MasterArena.json");
+const MasterArena = require(abiPath);
 
 async function startCreator() {
     console.log("Creator (Boss) is starting...");
-    // Your existing logic for creating rounds goes here
+    console.log("ABI loaded successfully from:", abiPath);
+    // Paste your original Boss logic (rounds, etc.) below this line
 }
 
 startCreator().catch((error) => {
