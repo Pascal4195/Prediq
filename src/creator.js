@@ -1,15 +1,15 @@
 const { ethers } = require("ethers");
 const fs = require('fs');
 const path = require('path');
-const bnbData = require("../binance"); // Look up one level
-const masterArenaAbi = require("../abis/MasterArena.json"); // Look up one level
+// Path: Go up from src, then into backend-agents for binance
+const bnbData = require("../backend-agents/binance"); 
+const masterArenaAbi = require("../abis/MasterArena.json");
 
 const TARGETS_FILE = path.join(__dirname, 'targets.json');
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://rpc.monad.xyz");
 const adminWallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
 const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, masterArenaAbi, adminWallet);
 
-// Memory Helpers
 function saveTarget(taskId, targetPrice) {
     let data = {};
     if (fs.existsSync(TARGETS_FILE)) data = JSON.parse(fs.readFileSync(TARGETS_FILE));
@@ -27,8 +27,6 @@ async function manageMarkets() {
     try {
         console.log("--- Creator Cycle Starting ---");
         const taskCount = await contract.taskCount();
-        
-        // 1. Create New Task
         const btcPrice = await bnbData.getBTCPrice();
         const target = btcPrice + 10;
         const currentId = taskCount + 1n;
@@ -38,7 +36,6 @@ async function manageMarkets() {
         await createTx.wait();
         saveTarget(currentId, target);
 
-        // 2. Resolve Previous Task
         if (taskCount > 0n) {
             const task = await contract.tasks(taskCount);
             if (!task.resolved) {
