@@ -37,7 +37,7 @@ function App() {
       padding: '20px'
     }}>
       
-      {/* 1. TOP NAV: Fixed with Navigation Links */}
+      {/* 1. TOP NAV: Keeping Leaderboard/Docs from your latest version */}
       <nav style={{maxWidth:'1200px', margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', padding:'20px 0'}}>
         <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
           <div style={{width:'30px', height:'30px', border:'1.5px solid #06b6d4', display:'flex', alignItems:'center', justifyContent:'center', transform:'rotate(45deg)', boxShadow:'0 0 15px rgba(6,182,212,0.5)'}}>
@@ -47,19 +47,17 @@ function App() {
         </div>
 
         <div style={{display: 'flex', alignItems: 'center', gap: '40px'}}>
-          {/* NAV LINKS: Leaderboard/Docs added here */}
           <div style={{display: 'flex', gap: '25px'}}>
             <button style={{background:'none', border:'none', color:'#475569', fontSize:'10px', fontWeight:'900', letterSpacing:'2px', cursor:'pointer'}}>LEADERBOARD</button>
             <button style={{background:'none', border:'none', color:'#475569', fontSize:'10px', fontWeight:'900', letterSpacing:'2px', cursor:'pointer'}}>DOCS</button>
           </div>
-          
           <button onClick={connectWallet} style={{border:'1px solid rgba(255,255,255,0.2)', padding:'6px 14px', fontSize:'10px', fontWeight:'900', backgroundColor:'rgba(0,0,0,0.4)', color:'white', letterSpacing:'1px'}}>
             {account ? account.substring(0, 10).toUpperCase() : 'INITIALIZE_WALLET'}
           </button>
         </div>
       </nav>
 
-      {/* 2. HERO HEADER */}
+      {/* 2. HERO HEADER: Fixed Gradient logic */}
       <header style={{textAlign:'center', marginTop:'60px', marginBottom:'80px'}}>
         <h1 style={{fontSize:'clamp(40px, 8vw, 70px)', fontWeight:'900', fontStyle:'italic', margin:0, letterSpacing:'-2px', lineHeight:'1'}}>
           ELITE <span style={{
@@ -71,7 +69,7 @@ function App() {
         <p style={{fontSize:'10px', letterSpacing:'0.7em', color:'#475569', fontWeight:'bold', marginTop:'15px'}}>MONAD HIGH-SPEED NETWORK</p>
       </header>
 
-      {/* 3. GRID: Corrected Logic for Symbols and Labels */}
+      {/* 3. GRID: Matching Symbols and Writing to Target */}
       <div style={{display:'flex', gap:'25px', justifyContent:'center', overflowX:'auto', padding:'20px', scrollbarWidth:'none'}}>
         {Object.entries(ASSET_MAP).map(([id, asset]) => (
           <div key={id} style={{
@@ -79,7 +77,7 @@ function App() {
             display:'flex', flexDirection:'column', justifyContent:'space-between', boxShadow:'0 15px 40px rgba(0,0,0,0.6)'
           }}>
             <div style={{display:'flex', justifyContent:'space-between'}}>
-              {/* Correct Symbol mapping BTC=₿, ETH=Ξ */}
+              {/* TARGET SYMBOLS: BTC=₿, ETH=Ξ, MON=m */}
               <div style={{fontSize:'32px', fontWeight:'bold', color:'white'}}>
                 {asset.symbol === 'BTC' ? '₿' : asset.symbol === 'ETH' ? 'Ξ' : 'm'}
               </div>
@@ -87,7 +85,7 @@ function App() {
             </div>
             
             <div>
-              {/* Correct Text Label (BTC/ETH/MON) */}
+              {/* TARGET WRITING: Shows BTC/ETH/MON above the bar */}
               <h3 style={{fontSize:'22px', fontWeight:'900', fontStyle:'italic', margin:'0 0 5px 0', color: 'white'}}>
                 {asset.symbol}
               </h3>
