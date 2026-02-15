@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
+import Navbar from './Navbar';
 import { useAgents } from '../hooks/useAgents';
 import { useWallet } from '../context/WalletContext';
 
