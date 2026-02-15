@@ -1,9 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { WalletProvider } from './context/WalletContext';
-
-// NAVBAR IS NOW IN PAGES - UPDATED IMPORT PATH
-import Navbar from './pages/Navbar'; 
+import Navbar from './pages/Navbar'; // Import from pages
 import HomePage from './pages/HomePage';
 import AgentRegistryPage from './pages/AgentRegistryPage';
 import LeaderboardPage from './pages/LeaderboardPage';
@@ -13,7 +11,7 @@ function App() {
     <WalletProvider>
       <Router>
         <div className="min-h-screen bg-black text-white">
-          {/* Navbar stays here so it shows on every page */}
+          {/* Centralized Navbar: Now you MUST remove <Navbar /> from HomePage, Registry, and Leaderboard files */}
           <Navbar />
           <Routes>
             <Route path="/" element={<HomePage />} />
