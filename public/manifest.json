@@ -1,0 +1,16 @@
+{
+  "short_name": "Prediq",
+  "name": "Prediq: AI-Powered Prediction Market",
+  "description": "Stake and predict on the Monad Blockchain.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#06b6d4",
+  "background_color": "#000000"
+}
