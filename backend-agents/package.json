@@ -1,14 +1,14 @@
 {
-  "name": "prediq-agents-backend",
+  "name": "prediq-backend-agents",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Monad Mainnet Price Agents",
+  "main": "agent.js",
   "scripts": {
     "start": "node agent.js"
   },
   "dependencies": {
-    "ethers": "^6.11.1",
-    "axios": "^1.6.7",
-    "dotenv": "^16.4.5",
-    "@pythnetwork/price-service-client": "^1.9.0"
+    "ethers": "^5.7.2",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
   }
 }
