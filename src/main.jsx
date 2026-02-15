@@ -1,13 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './index.css';
-import { WalletProvider } from './context/WalletContext';
+import './pages/index.css'; // Updated path to find the CSS in the pages folder
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <WalletProvider>
-      <App />
-    </WalletProvider>
+    <App />
   </React.StrictMode>
 );
