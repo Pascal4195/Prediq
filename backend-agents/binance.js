@@ -1,13 +1,14 @@
-// backend-agents/utils/binance.js
-export async function getBinancePrice(symbol) {
+const axios = require('axios');
+
+const getPrice = async (symbol) => {
   try {
-    // We map your task symbols (e.g., BTC) to Binance pairs (BTCUSDT)
-    const pair = `${symbol.toUpperCase()}USDT`;
-    const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${pair}`);
-    const data = await response.json();
-    return data.price; // Returns string price like "64250.20"
-  } catch (err) {
-    console.error("Price fetch failed:", err);
+    // Standard Binance API call for price data
+    const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
+    return parseFloat(response.data.price);
+  } catch (error) {
+    console.error(`Error fetching ${symbol} price:`, error);
     return null;
   }
-}
+};
+
+module.exports = { getPrice };
