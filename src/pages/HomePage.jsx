@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Navbar from './Navbar';
 import TaskCard from './TaskCard';
 import { useTaskManager } from '../hooks/useTaskManager';
@@ -6,6 +6,7 @@ import { useWallet } from '../context/WalletContext';
 
 const HomePage = () => {
   const { tasks, loading } = useTaskManager();
+  // We extract these directly here to ensure they are reactive
   const { address, balance, isConnected, connect } = useWallet();
 
   return (
@@ -13,7 +14,10 @@ const HomePage = () => {
       <div className="scanline" />
       
       <Navbar 
-        walletInfo={{ address, balance }} 
+        walletInfo={{ 
+          address: address, 
+          balance: balance 
+        }} 
         onConnect={connect}
         isConnected={isConnected}
       />
@@ -40,7 +44,7 @@ const HomePage = () => {
           </div>
         ) : tasks.length === 0 ? (
           <div className="text-center p-20 border border-dashed border-white/10 bg-white/5 rounded-xl">
-            <div className="text-4xl mb-4">📡</div>
+            <div className="text-4xl mb-4 text-cyan-500/30">📡</div>
             <h3 className="text-xl font-bold uppercase mb-2 text-white">No Active Tasks</h3>
             <p className="text-gray-500 text-sm max-w-md mx-auto">
               The Prediction Market is currently waiting for new Oracle data. Check back shortly or connect your wallet to refresh.
