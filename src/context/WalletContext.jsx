@@ -1,52 +1,57 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { ethers } from 'ethers';
 
 const WalletContext = createContext();
+
+const MONAD_MAINNET_PARAMS = {
+  chainId: '0x2710', // Example ChainID for Monad - replace with actual when live
+  chainName: 'Monad Mainnet',
+  nativeCurrency: { name: 'MONAD', symbol: 'MON', decimals: 18 },
+  rpcUrls: ['https://rpc-mainnet.monad.xyz'], // Replace with actual RPC
+  blockExplorerUrls: ['https://monadexplorer.com']
+};
 
 export const WalletProvider = ({ children }) => {
   const [address, setAddress] = useState('');
   const [balance, setBalance] = useState('0');
   const [isConnected, setIsConnected] = useState(false);
 
-  const connect = async () => {
-    // Check for any injected provider (MetaMask, Rabby, etc.)
-    const provider = window.ethereum;
-
-    if (provider) {
-      try {
-        // Request accounts from whatever wallet is active
-        const accounts = await provider.request({ method: 'eth_requestAccounts' });
-        const userAddress = accounts[0];
-        
-        const ethProvider = new ethers.providers.Web3Provider(provider);
-        const userBalance = await ethProvider.getBalance(userAddress);
-        
-        setAddress(userAddress);
-        setBalance(ethers.utils.formatEther(userBalance));
-        setIsConnected(true);
-      } catch (error) {
-        console.error("Connection failed:", error);
+  const switchNetwork = async () => {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: MONAD_MAINNET_PARAMS.chainId }],
+      });
+    } catch (error) {
+      if (error.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [MONAD_MAINNET_PARAMS],
+        });
       }
-    } else {
-      // Instead of an alert, we can log it or show a nicer UI message
-      console.warn("No Web3 provider detected. Please use a Monad-compatible wallet.");
-      // Optional: You could trigger a custom modal here later
     }
   };
 
-  // Listen for account changes automatically
-  useEffect(() => {
+  const connect = async () => {
     if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts) => {
-        if (accounts.length > 0) {
-          setAddress(accounts[0]);
-        } else {
-          setIsConnected(false);
-          setAddress('');
-        }
-      });
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        await switchNetwork(); // Forces switch to Monad Mainnet
+        
+        const ethProvider = new ethers.providers.Web3Provider(window.ethereum);
+        const userBalance = await ethProvider.getBalance(accounts[0]);
+        
+        setAddress(accounts[0]);
+        setBalance(ethers.utils.formatEther(userBalance));
+        setIsConnected(true);
+      } catch (error) {
+        console.error("Connection failed", error);
+      }
+    } else {
+      const dappUrl = window.location.href.split('//')[1];
+      window.location.href = `https://metamask.app.link/dapp/${dappUrl}`;
     }
-  }, []);
+  };
 
   return (
     <WalletContext.Provider value={{ address, balance, isConnected, connect }}>
