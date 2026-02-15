@@ -1,18 +1,22 @@
+const { ethers } = require("ethers");
 const fs = require('fs');
 const path = require('path');
-const TARGETS_FILE = path.join(__dirname, 'targets.json');
+const bnbData = require("../binance"); // Look up one level
+const masterArenaAbi = require("../abis/MasterArena.json"); // Look up one level
 
-// Helper: Save a target price
+const TARGETS_FILE = path.join(__dirname, 'targets.json');
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://rpc.monad.xyz");
+const adminWallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, masterArenaAbi, adminWallet);
+
+// Memory Helpers
 function saveTarget(taskId, targetPrice) {
     let data = {};
-    if (fs.existsSync(TARGETS_FILE)) {
-        data = JSON.parse(fs.readFileSync(TARGETS_FILE));
-    }
+    if (fs.existsSync(TARGETS_FILE)) data = JSON.parse(fs.readFileSync(TARGETS_FILE));
     data[taskId.toString()] = targetPrice;
     fs.writeFileSync(TARGETS_FILE, JSON.stringify(data, null, 2));
 }
 
-// Helper: Get a target price
 function getTarget(taskId) {
     if (!fs.existsSync(TARGETS_FILE)) return null;
     const data = JSON.parse(fs.readFileSync(TARGETS_FILE));
@@ -21,38 +25,36 @@ function getTarget(taskId) {
 
 async function manageMarkets() {
     try {
+        console.log("--- Creator Cycle Starting ---");
         const taskCount = await contract.taskCount();
+        
+        // 1. Create New Task
+        const btcPrice = await bnbData.getBTCPrice();
+        const target = btcPrice + 10;
         const currentId = taskCount + 1n;
 
-        // 1. CREATE TASK
-        const btcPrice = await bnbData.getBTCPrice();
-        const target = btcPrice + 10; // Target is $10 higher
-        
-        console.log(`Creating Task #${currentId}: Target $${target}`);
-        const tx = await contract.createTask(`Will BTC hit $${target}?`);
-        await tx.wait();
-
-        // Save the target price to our "memory" file
+        console.log(`> Creating Task #${currentId}: Target $${target}`);
+        const createTx = await contract.createTask(`Will BTC hit $${target}?`, { gasLimit: 250000 });
+        await createTx.wait();
         saveTarget(currentId, target);
 
-        // 2. RESOLVE PREVIOUS TASK
+        // 2. Resolve Previous Task
         if (taskCount > 0n) {
-            const lastId = taskCount;
-            const task = await contract.tasks(lastId);
-            
+            const task = await contract.tasks(taskCount);
             if (!task.resolved) {
-                const savedTarget = getTarget(lastId);
+                const savedTarget = getTarget(taskCount);
                 const finalPrice = await bnbData.getBTCPrice();
-                
-                // If we don't have the target saved, we use a fallback or skip
                 if (savedTarget) {
                     const winner = finalPrice >= savedTarget;
-                    console.log(`Resolving #${lastId}: Final $${finalPrice} vs Target $${savedTarget}`);
-                    await (await contract.resolveTask(lastId, winner)).wait();
+                    console.log(`> Resolving #${taskCount}: Winner ${winner ? "YES" : "NO"}`);
+                    await (await contract.resolveTask(taskCount, winner, { gasLimit: 250000 })).wait();
                 }
             }
         }
     } catch (err) {
-        console.error("Creator error:", err.message);
+        console.error("[Creator Error]:", err.message);
     }
 }
+
+setInterval(manageMarkets, 15 * 60 * 1000);
+manageMarkets();
