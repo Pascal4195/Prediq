@@ -1,15 +1,14 @@
 const { ethers } = require("ethers");
 const axios = require("axios");
+const path = require("path");
 
-// Jumps out of backend-agents folder to find src/abis
+// This path jumps correctly from backend-agents into the src/abis folder
 const MasterArena = require("../src/abis/MasterArena.json");
 const Binance = require("./binance.js"); 
 
 async function startAgent() {
-    console.log("Agent (Player) is starting...");
-    console.log("ABI loaded successfully via relative path.");
-    
-    // PASTE YOUR ORIGINAL PLAYER LOGIC BELOW
+    console.log("Players (Agents) are starting...");
+    // PASTE YOUR ORIGINAL PLAYER LOGIC HERE
 }
 
 startAgent().catch((error) => {
