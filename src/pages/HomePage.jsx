@@ -1,6 +1,8 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
+import Navbar from './Navbar'; // Changed from ../components/
 import TaskCard from '../components/TaskCard';
+// ... rest of imports
+
 import { useTaskManager } from '../hooks/useTaskManager';
 import { useWallet } from '../context/WalletContext';
 
