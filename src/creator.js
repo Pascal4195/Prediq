@@ -1,53 +1,58 @@
-const { ethers } = require("ethers");
-const bnbData = require("./binance"); // Using your price logic
-const masterArenaAbi = require("./abis/MasterArena.json");
+const fs = require('fs');
+const path = require('path');
+const TARGETS_FILE = path.join(__dirname, 'targets.json');
 
-// 1. Setup Admin Wallet (The Owner of the Contract)
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://rpc.monad.xyz");
-const adminWallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
-const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, masterArenaAbi, adminWallet);
+// Helper: Save a target price
+function saveTarget(taskId, targetPrice) {
+    let data = {};
+    if (fs.existsSync(TARGETS_FILE)) {
+        data = JSON.parse(fs.readFileSync(TARGETS_FILE));
+    }
+    data[taskId.toString()] = targetPrice;
+    fs.writeFileSync(TARGETS_FILE, JSON.stringify(data, null, 2));
+}
+
+// Helper: Get a target price
+function getTarget(taskId) {
+    if (!fs.existsSync(TARGETS_FILE)) return null;
+    const data = JSON.parse(fs.readFileSync(TARGETS_FILE));
+    return data[taskId.toString()];
+}
 
 async function manageMarkets() {
     try {
-        console.log("--- Creator Agent Checking Markets ---");
-
-        // A. Create a New Task (Example: BTC Prediction)
-        const btcPriceAtCreation = await bnbData.getBTCPrice();
-        const targetPrice = btcPriceAtCreation + 50; // Predict if it goes up $50
-        const question = `Will BTC be above $${targetPrice} in 15 minutes?`;
-
-        console.log(`> Creating Task: ${question}`);
-        const createTx = await contract.createTask(question, { gasLimit: 250000 });
-        await createTx.wait();
-        console.log("> Task successfully created!");
-
-        // B. Wait & Resolve (Logic for a production loop)
-        // In a real scenario, you'd store the task ID and check back 15 mins later.
-        // For now, let's assume we are resolving the PREVIOUS task.
         const taskCount = await contract.taskCount();
-        if (taskCount > 1n) {
-            const lastId = taskCount - 1n;
-            const task = await contract.tasks(lastId);
+        const currentId = taskCount + 1n;
 
+        // 1. CREATE TASK
+        const btcPrice = await bnbData.getBTCPrice();
+        const target = btcPrice + 10; // Target is $10 higher
+        
+        console.log(`Creating Task #${currentId}: Target $${target}`);
+        const tx = await contract.createTask(`Will BTC hit $${target}?`);
+        await tx.wait();
+
+        // Save the target price to our "memory" file
+        saveTarget(currentId, target);
+
+        // 2. RESOLVE PREVIOUS TASK
+        if (taskCount > 0n) {
+            const lastId = taskCount;
+            const task = await contract.tasks(lastId);
+            
             if (!task.resolved) {
-                console.log(`> Resolving previous Task #${lastId}...`);
-                const currentPrice = await bnbData.getBTCPrice();
+                const savedTarget = getTarget(lastId);
+                const finalPrice = await bnbData.getBTCPrice();
                 
-                // Logic: If current price > target in the question (parsed from string or stored)
-                // For simplicity, let's say it's a "Higher/Lower" game
-                const didWin = currentPrice > btcPriceAtCreation; 
-                
-                const resolveTx = await contract.resolveTask(lastId, didWin, { gasLimit: 250000 });
-                await resolveTx.wait();
-                console.log(`> Task #${lastId} resolved! Winner: ${didWin ? "YES" : "NO"}`);
+                // If we don't have the target saved, we use a fallback or skip
+                if (savedTarget) {
+                    const winner = finalPrice >= savedTarget;
+                    console.log(`Resolving #${lastId}: Final $${finalPrice} vs Target $${savedTarget}`);
+                    await (await contract.resolveTask(lastId, winner)).wait();
+                }
             }
         }
-
     } catch (err) {
-        console.error("[Creator Error]:", err.reason || err.message);
+        console.error("Creator error:", err.message);
     }
 }
-
-// Run this every 15 minutes to match the cycle
-setInterval(manageMarkets, 15 * 60 * 1000);
-manageMarkets();
