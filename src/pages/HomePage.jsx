@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from './Navbar';
 import TaskCard from './TaskCard';
 import { useTaskManager } from '../hooks/useTaskManager';
@@ -13,7 +13,7 @@ const HomePage = () => {
       <div className="scanline" />
       
       <Navbar 
-        walletInfo={{ address, balance: parseFloat(balance || 0).toFixed(4) }} 
+        walletInfo={{ address, balance }} 
         onConnect={connect}
         isConnected={isConnected}
       />
