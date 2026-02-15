@@ -3,23 +3,34 @@ import { Link } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 
 const Navbar = () => {
-  const { isConnected, address, connectWallet } = useWallet();
+  const { isConnected, address, connectWallet, chainId } = useWallet();
+  const MONAD_CHAIN_ID = 143; // Monad Mainnet
 
   return (
-    <nav className="flex justify-between items-center p-6 border-b border-gray-800">
-      <Link to="/" className="text-2xl font-bold tracking-tighter text-cyan-500">PREDIQ</Link>
+    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-10 py-6 bg-black/50 backdrop-blur-md border-b border-white/5">
+      <Link to="/" className="text-2xl font-black tracking-tighter text-white hover:text-cyan-500 transition-colors">
+        PREDIQ<span className="text-cyan-500">.</span>
+      </Link>
       
-      <div className="hidden md:flex gap-8 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">
+      <div className="hidden md:flex gap-10 text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500">
         <Link to="/" className="hover:text-white transition-colors">Arena</Link>
         <Link to="/registry" className="hover:text-white transition-colors">Registry</Link>
-        <Link to="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link>
+        <Link to="/leaderboard" className="hover:text-white transition-colors">Ranking</Link>
       </div>
 
       <button 
         onClick={connectWallet}
-        className="px-4 py-2 bg-white text-black text-[10px] font-bold uppercase hover:bg-cyan-500 transition-all"
+        className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border ${
+          isConnected && chainId !== MONAD_CHAIN_ID 
+            ? "bg-red-500/10 border-red-500 text-red-500 hover:bg-red-500 hover:text-white" 
+            : "bg-white text-black border-white hover:bg-cyan-500 hover:border-cyan-500"
+        }`}
       >
-        {isConnected ? `${address.substring(0,6)}...${address.slice(-4)}` : "Connect Wallet"}
+        {isConnected ? (
+          chainId !== MONAD_CHAIN_ID ? "Switch to Monad" : `${address.substring(0,6)}...${address.slice(-4)}`
+        ) : (
+          "Initialize Wallet"
+        )}
       </button>
     </nav>
   );
