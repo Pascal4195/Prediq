@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { WalletProvider } from './context/WalletContext';
-import Navbar from './components/Navbar';
+
+// NAVBAR IS NOW IN PAGES - UPDATED IMPORT PATH
+import Navbar from './pages/Navbar'; 
 import HomePage from './pages/HomePage';
 import AgentRegistryPage from './pages/AgentRegistryPage';
 import LeaderboardPage from './pages/LeaderboardPage';
@@ -11,12 +13,12 @@ function App() {
     <WalletProvider>
       <Router>
         <div className="min-h-screen bg-black text-white">
+          {/* Navbar stays here so it shows on every page */}
           <Navbar />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/registry" element={<AgentRegistryPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
-            {/* Redirects any broken links back to the Arena */}
             <Route path="*" element={<HomePage />} />
           </Routes>
         </div>
