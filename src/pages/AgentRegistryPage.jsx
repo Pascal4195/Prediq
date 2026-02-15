@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { useWallet } from '../context/WalletContext';
 
 // REPLACE WITH YOUR ACTUAL REGISTRY CONTRACT ADDRESS
-const REGISTRY_ADDRESS = "0xYour_Registry_Address_Here";
+const REGISTRY_ADDRESS = "0x09E1f21bE716c1e4c269A415D8287f92cfA748b4";
 const REGISTRY_ABI = ["function registerAgent(string name) public"];
 
 const AgentRegistryPage = () => {
