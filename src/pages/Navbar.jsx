@@ -8,7 +8,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] flex justify-between items-center px-10 py-6 bg-black/80 backdrop-blur-xl border-b border-white/10">
-      <Link to="/" className="text-2xl font-black tracking-tighter text-white">
+      <Link to="/" className="text-2xl font-black tracking-tighter text-white hover:text-cyan-500 transition-colors">
         PREDIQ<span className="text-cyan-500">.</span>
       </Link>
       
@@ -20,7 +20,11 @@ const Navbar = () => {
 
       <button 
         onClick={connectWallet}
-        className="px-8 py-3 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-cyan-500 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-cyan-500/20"
+        className={`px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border ${
+          isConnected && chainId !== MONAD_CHAIN_ID 
+            ? "bg-red-500/10 border-red-500 text-red-500 hover:bg-red-500 hover:text-white" 
+            : "bg-white text-black border-white hover:bg-cyan-500 hover:border-cyan-500 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+        }`}
       >
         {isConnected ? (
           chainId !== MONAD_CHAIN_ID ? "Switch to Monad" : `${address.substring(0,6)}...${address.slice(-4)}`
