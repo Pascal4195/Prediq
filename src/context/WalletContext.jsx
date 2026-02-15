@@ -3,101 +3,58 @@ import { ethers } from 'ethers';
 
 const WalletContext = createContext();
 
-// OFFICIAL MONAD MAINNET SPECS
-const MONAD_MAINNET = {
-  chainId: '0x8f', // 143 in Hex
-  chainName: 'Monad Mainnet',
-  nativeCurrency: { name: 'MONAD', symbol: 'MON', decimals: 18 },
-  rpcUrls: ['https://rpc.monad.xyz'], 
-  blockExplorerUrls: ['https://monadvision.com']
-};
-
 export const WalletProvider = ({ children }) => {
-  const [address, setAddress] = useState('');
-  const [balance, setBalance] = useState('0');
+  const [address, setAddress] = useState(null);
+  const [chainId, setChainId] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
-  // Function to switch or add the Monad network
-  const switchNetwork = async () => {
-    if (!window.ethereum) return;
+  const MONAD_PARAMS = {
+    chainId: '0x8F', // 143
+    chainName: 'Monad Mainnet',
+    nativeCurrency: { name: 'MON', symbol: 'MON', decimals: 18 },
+    rpcUrls: ['https://rpc.monad.xyz'],
+    blockExplorerUrls: ['https://monadscan.com']
+  };
+
+  const connectWallet = async () => {
+    if (!window.ethereum) return alert("Install MetaMask");
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const network = await window.ethereum.request({ method: 'eth_chainId' });
+      setAddress(accounts[0]);
+      setChainId(parseInt(network, 16));
+      setIsConnected(true);
+    } catch (error) {
+      console.error("Connection failed", error);
+    }
+  };
+
+  const switchToMonad = async () => {
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: MONAD_MAINNET.chainId }],
+        params: [{ chainId: '0x8F' }],
       });
-    } catch (error) {
-      if (error.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [MONAD_MAINNET],
-          });
-        } catch (addError) {
-          console.error("Failed to add network");
-        }
-      }
-    }
-  };
-
-  // Main connection logic
-  const connect = async () => {
-    if (window.ethereum) {
-      try {
-        // 1. Trigger the wallet selection/login
-        const accounts = await window.ethereum.request({ 
-          method: 'eth_requestAccounts' 
+    } catch (err) {
+      if (err.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [MONAD_PARAMS],
         });
-        
-        // 2. Force switch to Monad Mainnet
-        await switchNetwork();
-        
-        // 3. Setup Provider and fetch fresh data
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const network = await provider.getNetwork();
-        
-        // Only update state if we are on the correct chain
-        if (network.chainId === 143 || network.chainId === parseInt(MONAD_MAINNET.chainId, 16)) {
-          const userBalance = await provider.getBalance(accounts[0]);
-          
-          setAddress(accounts[0]);
-          setBalance(ethers.utils.formatEther(userBalance));
-          setIsConnected(true);
-        }
-      } catch (err) {
-        console.error("Connection process failed:", err);
       }
-    } else {
-      // Mobile deep-link fallback
-      const dappUrl = window.location.href.split('//')[1];
-      window.location.href = `https://metamask.app.link/dapp/${dappUrl}`;
     }
   };
 
-  // Listen for account or network changes while the app is open
+  // Listen for account or network changes
   useEffect(() => {
     if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts) => {
-        if (accounts.length > 0) {
-          setAddress(accounts[0]);
-          // Re-fetch balance if account changes
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
-          provider.getBalance(accounts[0]).then(bal => {
-            setBalance(ethers.utils.formatEther(bal));
-          });
-        } else {
-          setAddress('');
-          setIsConnected(false);
-        }
-      });
-
-      window.ethereum.on('chainChanged', () => {
-        window.location.reload();
-      });
+      window.ethereum.on('chainChanged', (chain) => setChainId(parseInt(chain, 16)));
+      window.ethereum.on('accountsChanged', (accs) => setAddress(accs[0]));
     }
   }, []);
 
   return (
-    <WalletContext.Provider value={{ address, balance, isConnected, connect }}>
+    <WalletContext.Provider value={{ address, isConnected, chainId, connectWallet, switchToMonad }}>
       {children}
     </WalletContext.Provider>
   );
