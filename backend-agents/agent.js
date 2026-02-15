@@ -1,14 +1,14 @@
 const { ethers } = require("ethers");
 const axios = require("axios");
-const path = require("path");
 
-// This path jumps correctly from backend-agents into the src/abis folder
+// Jumps out of backend-agents to find the corrected filename
 const MasterArena = require("../src/abis/MasterArena.json");
 const Binance = require("./binance.js"); 
 
 async function startAgent() {
     console.log("Players (Agents) are starting...");
-    // PASTE YOUR ORIGINAL PLAYER LOGIC HERE
+    console.log("Found MasterArena.json successfully.");
+    // YOUR AGENT LOGIC GOES HERE
 }
 
 startAgent().catch((error) => {
