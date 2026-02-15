@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 const WalletContext = createContext();
 
-// OFFICIAL MONAD MAINNET SPECS (2026)
+// OFFICIAL MONAD MAINNET SPECS
 const MONAD_MAINNET = {
   chainId: '0x8f', // 143 in Hex
-  chainName: 'Monad Mainnet', // This is what the user sees in the wallet
+  chainName: 'Monad Mainnet',
   nativeCurrency: { name: 'MONAD', symbol: 'MON', decimals: 18 },
   rpcUrls: ['https://rpc.monad.xyz'], 
   blockExplorerUrls: ['https://monadvision.com']
@@ -17,16 +17,15 @@ export const WalletProvider = ({ children }) => {
   const [balance, setBalance] = useState('0');
   const [isConnected, setIsConnected] = useState(false);
 
+  // Function to switch or add the Monad network
   const switchNetwork = async () => {
     if (!window.ethereum) return;
     try {
-      // Prompt user to switch to Monad Mainnet
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: MONAD_MAINNET.chainId }],
       });
     } catch (error) {
-      // Error code 4902 means the network hasn't been added to their wallet yet
       if (error.code === 4902) {
         try {
           await window.ethereum.request({
@@ -34,37 +33,68 @@ export const WalletProvider = ({ children }) => {
             params: [MONAD_MAINNET],
           });
         } catch (addError) {
-          console.error("User cancelled adding the network.");
+          console.error("Failed to add network");
         }
       }
     }
   };
 
+  // Main connection logic
   const connect = async () => {
     if (window.ethereum) {
       try {
-        // 1. Request Account Access (The "Connect" popup)
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // 1. Trigger the wallet selection/login
+        const accounts = await window.ethereum.request({ 
+          method: 'eth_requestAccounts' 
+        });
         
-        // 2. Immediately ask to switch to Monad Mainnet
+        // 2. Force switch to Monad Mainnet
         await switchNetwork();
         
-        // 3. Update UI with details
+        // 3. Setup Provider and fetch fresh data
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const userBalance = await provider.getBalance(accounts[0]);
+        const network = await provider.getNetwork();
         
-        setAddress(accounts[0]);
-        setBalance(ethers.utils.formatEther(userBalance));
-        setIsConnected(true);
+        // Only update state if we are on the correct chain
+        if (network.chainId === 143 || network.chainId === parseInt(MONAD_MAINNET.chainId, 16)) {
+          const userBalance = await provider.getBalance(accounts[0]);
+          
+          setAddress(accounts[0]);
+          setBalance(ethers.utils.formatEther(userBalance));
+          setIsConnected(true);
+        }
       } catch (err) {
-        console.error("Connection failed:", err.message);
+        console.error("Connection process failed:", err);
       }
     } else {
-      // Mobile fallback if no wallet is found
+      // Mobile deep-link fallback
       const dappUrl = window.location.href.split('//')[1];
       window.location.href = `https://metamask.app.link/dapp/${dappUrl}`;
     }
   };
+
+  // Listen for account or network changes while the app is open
+  useEffect(() => {
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length > 0) {
+          setAddress(accounts[0]);
+          // Re-fetch balance if account changes
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          provider.getBalance(accounts[0]).then(bal => {
+            setBalance(ethers.utils.formatEther(bal));
+          });
+        } else {
+          setAddress('');
+          setIsConnected(false);
+        }
+      });
+
+      window.ethereum.on('chainChanged', () => {
+        window.location.reload();
+      });
+    }
+  }, []);
 
   return (
     <WalletContext.Provider value={{ address, balance, isConnected, connect }}>
