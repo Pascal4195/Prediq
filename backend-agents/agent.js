@@ -1,12 +1,16 @@
 const { ethers } = require("ethers");
 const axios = require("axios");
-// Jumps out of backend-agents to find the ABI
-const MasterArena = require("../src/abis/MasterArena.json"); 
+const path = require("path");
+
+// Bulletproof pathing to jump folders correctly
+const abiPath = path.join(process.cwd(), "src", "abis", "MasterArena.json");
+const MasterArena = require(abiPath);
 const Binance = require("./binance.js"); 
 
 async function startAgent() {
     console.log("Agent (Player) is starting...");
-    // Your existing logic for checking prices and betting goes here
+    console.log("ABI loaded successfully from:", abiPath);
+    // Paste your original Player logic (betting, etc.) below this line
 }
 
 startAgent().catch((error) => {
