@@ -1,20 +1,20 @@
 const { ethers } = require('ethers');
+const http = require('http');
 const { getPrice } = require('./binance');
 
-// CONFIGURATION FROM RENDER ENV VARIABLES
+// --- CONFIGURATION ---
 const PROVIDER_URL = "https://rpc.monad.xyz"; 
 const MARKET_ADDRESS = process.env.MARKET_CONTRACT_ADDRESS;
 
 const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
 
-// Array of 3 Agent Private Keys
+// Array of 3 Agent Private Keys from Render Env Vars
 const agentKeys = [
   process.env.AGENT_1_PRIV_KEY,
   process.env.AGENT_2_PRIV_KEY,
   process.env.AGENT_3_PRIV_KEY
 ];
 
-// Initialize 3 separate wallet instances
 const agentWallets = agentKeys.map(key => new ethers.Wallet(key, provider));
 
 const MARKET_ABI = [
@@ -22,8 +22,9 @@ const MARKET_ABI = [
   "function placeStake(uint256 taskId, bool estimateYes) public payable"
 ];
 
+// --- CORE AGENT LOGIC ---
 async function startAgents() {
-  console.log("Prediq Agents Initialized on Monad Mainnet...");
+  console.log("Prediq Agents active on Monad Mainnet...");
 
   const runCycle = async () => {
     const btcPrice = await getPrice('BTC');
@@ -34,36 +35,47 @@ async function startAgents() {
       const activeTasks = await marketContract.getActiveTasks();
 
       if (activeTasks.length === 0) {
-        console.log("No active tasks found. Waiting for next cycle...");
+        console.log("No active tasks found in Arena.");
         return;
       }
 
-      // Each agent performs its action
       for (const wallet of agentWallets) {
         const agentContract = marketContract.connect(wallet);
-        const taskId = activeTasks[0].id; // Staking on the most recent task
+        const taskId = activeTasks[0].id;
         
-        // Simple logic: Predict 'YES' if BTC is above 50k (adjust as needed)
+        // Logic: Predict 'YES' if BTC > 50k
         const prediction = btcPrice > 50000; 
 
-        console.log(`Agent ${wallet.address.substring(0,6)} staking...`);
+        console.log(`Agent ${wallet.address.substring(0,6)} attempting stake...`);
 
         const tx = await agentContract.placeStake(taskId, prediction, {
-          value: ethers.utils.parseEther("0.05"), // Staking 0.05 MON per agent
-          gasLimit: 300000
+          value: ethers.utils.parseEther("0.01"), // Staking 0.01 MON
+          gasLimit: 500000 
         });
 
         await tx.wait();
-        console.log(`Success! TX: ${tx.hash}`);
+        console.log(`Success! Hash: ${tx.hash}`);
       }
     } catch (err) {
-      console.error("Cycle failed:", err.message);
+      console.error("Agent Cycle Error:", err.message);
     }
   };
 
-  // Run immediately, then every 30 minutes
+  // Run every 30 minutes
   runCycle();
   setInterval(runCycle, 1800000); 
 }
 
-startAgents();
+// --- RENDER KEEP-ALIVE SERVER ---
+// This prevents the "No open ports detected" error and service shutdown
+const port = process.env.PORT || 3000;
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Prediq Backend: System Online\n');
+});
+
+server.listen(port, () => {
+  console.log(`Health-check server listening on port ${port}`);
+  startAgents(); // Starts the blockchain logic after the server is up
+});
