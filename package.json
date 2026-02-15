@@ -1,7 +1,8 @@
 {
-  "name": "monad-arena-master",
+  "name": "prediq-master",
   "version": "1.0.0",
   "scripts": {
+    "build": "echo 'No build needed'",
     "start": "concurrently \"node backend-agents/agents.js\" \"node src/creator.js\" \"node frontend/server.js\"",
     "agents": "node backend-agents/agents.js",
     "creator": "node src/creator.js",
@@ -14,4 +15,3 @@
     "express": "^4.18.2"
   }
 }
-
