@@ -1,67 +1,69 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import TaskCard from '../components/TaskCard';
-import CreateAgentModal from '../components/CreateAgentModal'; // Added this
+import CreateAgentModal from '../components/CreateAgentModal';
+import { useTaskManager } from '../hooks/useTaskManager';
+import { useWallet } from '../hooks/useWallet';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState('Arena');
   const [showCreateAgentModal, setShowCreateAgentModal] = useState(false);
+  
+  // LIVE HOOKS
+  const { tasks, loading } = useTaskManager();
+  const { address, balance, isConnected, connect } = useWallet();
 
-  const walletInfo = { address: "0x742d...35a3", balance: 1250 };
-
-  // Mock data for the Arena
-  const tasks = [
-    { id: 1, taskQuestion: "Will Monad Mainnet launch by March 2026?", yesPercent: 65, noPercent: 35, numAgents: 124, totalMonads: 50000 },
-    { id: 2, taskQuestion: "Will ETH/BTC ratio exceed 0.06 by end of month?", yesPercent: 42, noPercent: 58, numAgents: 89, totalMonads: 12500 }
-  ];
+  const walletInfo = { 
+    address: address || "NOT_CONNECTED", 
+    balance: parseFloat(balance).toFixed(2) 
+  };
 
   return (
     <div className="min-h-screen bg-[#050505] font-mono text-white">
-      <Navbar activeTab={activeTab} onTabChange={setActiveTab} walletInfo={walletInfo} />
-
-      {/* Hero Section */}
-      <section className="border-b border-cyan-500/20 py-20 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-900/10 via-transparent to-transparent pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto relative z-10 text-center">
-          <div className="border border-cyan-500/30 px-3 py-1 mb-6 inline-flex items-center gap-2 bg-cyan-500/5">
-            <span className="w-2 h-2 bg-cyan-500 animate-ping" />
-            <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase">System Online // Prediction Arena</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-8xl font-black mb-8 tracking-tighter uppercase italic">
-            Predict<span className="text-cyan-500 text-outline">.Earn</span>
-          </h1>
-
-          <div className="flex flex-wrap gap-4 justify-center">
-            <button 
-              onClick={() => setShowCreateAgentModal(true)} // Opens Modal
-              className="bg-cyan-500 text-black font-black px-10 py-4 uppercase hover:bg-white transition-all skew-x-[-12deg]"
-            >
-              <span className="inline-block skew-x-[12deg]">Initialize Agent</span>
-            </button>
-          </div>
-        </div>
-      </section>
+      <Navbar 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+        walletInfo={walletInfo}
+        onConnect={connect}
+        isConnected={isConnected}
+      />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-col lg:flex-row gap-12">
           <div className="flex-1">
-            <h2 className="text-2xl font-black uppercase mb-10 border-b border-gray-800 pb-4">Active_Market_Feeds</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {tasks.map((task) => (
-                <TaskCard key={task.id} {...task} />
-              ))}
+            <div className="flex items-end justify-between mb-10 border-b border-gray-800 pb-4">
+              <div>
+                <h2 className="text-2xl font-black uppercase tracking-tight">Active_Market_Feeds</h2>
+                <span className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">
+                  {loading ? ">>> SYNCING_WITH_MONAD_NODE..." : ">>> SYSTEM_NOMINAL"}
+                </span>
+              </div>
             </div>
+
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-50">
+                {[1, 2, 3, 4].map(i => <div key={i} className="h-48 bg-gray-900 animate-pulse border border-gray-800" />)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {tasks.map((task) => (
+                  <TaskCard 
+                    key={task.id} 
+                    taskQuestion={task.question}
+                    yesPercent={task.yesPercent}
+                    noPercent={task.noPercent}
+                    totalMonads={task.totalStaked}
+                    numAgents="--" // Update hook if contract tracks this
+                    onViewTask={() => console.log("Navigate to task", task.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
 
-      {/* MODAL COMPONENT */}
-      <CreateAgentModal 
-        isOpen={showCreateAgentModal} 
-        onClose={() => setShowCreateAgentModal(false)} 
-      />
+      <CreateAgentModal isOpen={showCreateAgentModal} onClose={() => setShowCreateAgentModal(false)} />
     </div>
   );
 };
