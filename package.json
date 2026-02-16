@@ -2,13 +2,12 @@
   "name": "prediq-arena",
   "version": "1.0.0",
   "type": "module",
-    "scripts": {
+  "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "start": "node backend-agents/agent.js"
   },
-
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
