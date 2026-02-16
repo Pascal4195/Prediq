@@ -1,31 +1,31 @@
 const { ethers } = require("ethers");
-const MasterArena = require("../src/abis/MasterArena.json");
+const http = require("http");
+const MasterArena = require("./abis/MasterArena.json");
 
-async function startAgent() {
-    console.log("--- Agents Health Check ---");
-    const agentKeys = [process.env.AGENT_KEY_1, process.env.AGENT_KEY_2, process.env.AGENT_KEY_3];
-    
-    agentKeys.forEach((key, i) => {
-        console.log(`Agent ${i+1} Key:`, key ? "FOUND" : "NOT FOUND");
-    });
+// Keep Render alive
+const port = process.env.PORT || 10000;
+http.createServer((req, res) => res.end('Monad Mainnet Backend Live')).listen(port);
+
+async function startCreator() {
+    console.log("--- Monad Mainnet Creator Check ---");
+    console.log("RPC_URL Found:", !!process.env.RPC_URL);
 
     try {
-        // --- PASTE YOUR ORIGINAL PLAYER LOGIC HERE ---
-    } catch (e) {
-        console.log("Agent loop warning:", e.message);
+        // Explicitly setting Monad Mainnet Chain ID: 10143
+        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL, {
+            name: 'monad',
+            chainId: 10143 
+        });
+        
+        const wallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
+        console.log("Monad Boss Wallet Address:", wallet.address);
+
+        // --- PASTE YOUR BOSS LOGIC HERE ---
+
+    } catch (error) {
+        console.error("Monad Connection Error:", error.message);
     }
 
-    // Force Keep-Alive
-    setInterval(() => console.log("Agents heartbeat..."), 60000);
+    setInterval(() => console.log("Boss Heartbeat (Monad Mainnet)..."), 60000);
 }
-startAgent();
-async function startAgent() {
-    console.log("--- Agents Health Check ---");
-    // ... your logic ...
-
-    // ADD THIS AT THE BOTTOM TO STOP THE "EXITED WITH CODE 0"
-    setInterval(() => {
-        console.log("Players heartbeat: Running...");
-    }, 60000);
-}
-startAgent();
+startCreator();
