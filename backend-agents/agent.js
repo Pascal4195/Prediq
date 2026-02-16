@@ -1,26 +1,40 @@
 const { ethers } = require("ethers");
 const MasterArena = require("../src/abis/MasterArena.json");
 
+const cleanKey = (key) => {
+    if (!key) return null;
+    const k = key.trim();
+    return k.startsWith('0x') ? k : `0x${k}`;
+};
+
 async function startAgent() {
     console.log("--- Monad Agent: Force Mode ---");
+    const key = cleanKey(process.env.AGENT_KEY_1);
+
     try {
         const provider = new ethers.JsonRpcProvider(process.env.RPC_URL, { name: 'monad', chainId: 143 });
-        const wallet = new ethers.Wallet(process.env.AGENT_KEY_1, provider);
+        const wallet = new ethers.Wallet(key, provider);
         const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, MasterArena.abi || MasterArena, wallet);
 
-        console.log("Executing force transaction: placeBet...");
-        // Bypassing Binance check. Sending 0.01 MON bet.
-        // Replace 'placeBet' and arguments (0 for Up, etc.) with your actual function logic
-        const tx = await contract.placeBet(0, { value: ethers.parseEther("0.01") }); 
-        console.log("Tx Sent! Hash:", tx.hash);
+        // INTELLIGENT STEP: Find the current task count to bet on the latest one
+        const currentCount = await contract.taskCount();
+        const latestId = Number(currentCount);
 
-        await tx.wait();
-        console.log("CONFIRMED: Agent bet placed on Monad Mainnet.");
+        if (latestId > 0) {
+            console.log(`Step 2: Predicting on Task ID: ${latestId}...`);
+            // predict(taskId, side) -> true for Yes, false for No
+            const tx = await contract.predict(latestId, true, { 
+                value: ethers.parseEther("0.01") 
+            }); 
+            console.log("Bet Placed! Hash:", tx.hash);
+            await tx.wait();
+        } else {
+            console.log("No tasks available to bet on yet.");
+        }
 
     } catch (error) {
-        console.error("Agent Force Error:", error.message);
+        console.error("Agent Error:", error.message);
     }
-    // Keep alive loop
     setInterval(() => console.log("Agents heartbeat..."), 60000);
 }
 startAgent();
