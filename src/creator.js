@@ -1,3 +1,22 @@
+async function startCreator() {
+    console.log("--- Creator Health Check ---");
+    console.log("RPC_URL exists:", !!process.env.RPC_URL);
+    console.log("PRIVATE_KEY exists:", !!process.env.CREATOR_PRIVATE_KEY);
+    
+    if (!process.env.CREATOR_PRIVATE_KEY || !process.env.RPC_URL) {
+        console.error("CRITICAL: Creator variables missing in Render Settings!");
+        return; 
+    }
+
+    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const wallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
+    console.log("Creator Wallet Address:", wallet.address);
+    // ---------------------------
+    
+    console.log("Boss (Creator) is starting...");
+    // ... rest of your code
+}
+
 const { ethers } = require("ethers");
 const http = require("http"); // Added for port fix
 
