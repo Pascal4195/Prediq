@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from './Navbar';
-import LeaderboardRow from '../components/LeaderboardRow'; // Import your component
+import LeaderboardRow from './LeaderboardRow'; // Import your component
 import { useAgents } from '../hooks/useAgents';
 import { useWallet } from '../context/WalletContext';
 
