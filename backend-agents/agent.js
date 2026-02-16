@@ -19,3 +19,13 @@ async function startAgent() {
     setInterval(() => console.log("Agents heartbeat..."), 60000);
 }
 startAgent();
+async function startAgent() {
+    console.log("--- Agents Health Check ---");
+    // ... your logic ...
+
+    // ADD THIS AT THE BOTTOM TO STOP THE "EXITED WITH CODE 0"
+    setInterval(() => {
+        console.log("Players heartbeat: Running...");
+    }, 60000);
+}
+startAgent();
