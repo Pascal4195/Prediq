@@ -2,27 +2,25 @@ const { ethers } = require("ethers");
 const MasterArena = require("../src/abis/MasterArena.json");
 
 async function startAgent() {
-    console.log("--- Monad Mainnet Agents Check ---");
-    
+    console.log("--- Monad Agent: Force Mode ---");
     try {
-        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL, {
-            name: 'monad',
-            chainId: 10143
-        });
-        
-        // Example: Initializing Agent 1
-        if (process.env.AGENT_KEY_1) {
-            const agent1 = new ethers.Wallet(process.env.AGENT_KEY_1, provider);
-            console.log("Agent 1 Ready:", agent1.address);
-        }
+        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL, { name: 'monad', chainId: 143 });
+        const wallet = new ethers.Wallet(process.env.AGENT_KEY_1, provider);
+        const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, MasterArena.abi || MasterArena, wallet);
 
-        // --- PASTE YOUR PLAYER LOGIC HERE ---
+        console.log("Executing force transaction: placeBet...");
+        // Bypassing Binance check. Sending 0.01 MON bet.
+        // Replace 'placeBet' and arguments (0 for Up, etc.) with your actual function logic
+        const tx = await contract.placeBet(0, { value: ethers.parseEther("0.01") }); 
+        console.log("Tx Sent! Hash:", tx.hash);
+
+        await tx.wait();
+        console.log("CONFIRMED: Agent bet placed on Monad Mainnet.");
 
     } catch (error) {
-        console.error("Agent Loop Error:", error.message);
+        console.error("Agent Force Error:", error.message);
     }
-
-    // Prevents the "exited with code 0" error
-    setInterval(() => console.log("Agents Heartbeat (Monad Mainnet)..."), 60000);
+    // Keep alive loop
+    setInterval(() => console.log("Agents heartbeat..."), 60000);
 }
 startAgent();
