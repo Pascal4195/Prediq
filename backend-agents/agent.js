@@ -1,31 +1,28 @@
 const { ethers } = require("ethers");
-const http = require("http");
-const MasterArena = require("./abis/MasterArena.json");
+const MasterArena = require("../src/abis/MasterArena.json");
 
-// Keep Render alive
-const port = process.env.PORT || 10000;
-http.createServer((req, res) => res.end('Monad Mainnet Backend Live')).listen(port);
-
-async function startCreator() {
-    console.log("--- Monad Mainnet Creator Check ---");
-    console.log("RPC_URL Found:", !!process.env.RPC_URL);
-
+async function startAgent() {
+    console.log("--- Monad Mainnet Agents Check ---");
+    
     try {
-        // Explicitly setting Monad Mainnet Chain ID: 10143
         const provider = new ethers.JsonRpcProvider(process.env.RPC_URL, {
             name: 'monad',
-            chainId: 10143 
+            chainId: 10143
         });
         
-        const wallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
-        console.log("Monad Boss Wallet Address:", wallet.address);
+        // Example: Initializing Agent 1
+        if (process.env.AGENT_KEY_1) {
+            const agent1 = new ethers.Wallet(process.env.AGENT_KEY_1, provider);
+            console.log("Agent 1 Ready:", agent1.address);
+        }
 
-        // --- PASTE YOUR BOSS LOGIC HERE ---
+        // --- PASTE YOUR PLAYER LOGIC HERE ---
 
     } catch (error) {
-        console.error("Monad Connection Error:", error.message);
+        console.error("Agent Loop Error:", error.message);
     }
 
-    setInterval(() => console.log("Boss Heartbeat (Monad Mainnet)..."), 60000);
+    // Prevents the "exited with code 0" error
+    setInterval(() => console.log("Agents Heartbeat (Monad Mainnet)..."), 60000);
 }
-startCreator();
+startAgent();
