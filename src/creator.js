@@ -1,54 +1,29 @@
-async function startCreator() {
-    console.log("--- Creator Health Check ---");
-    console.log("RPC_URL exists:", !!process.env.RPC_URL);
-    console.log("PRIVATE_KEY exists:", !!process.env.CREATOR_PRIVATE_KEY);
-    
-    if (!process.env.CREATOR_PRIVATE_KEY || !process.env.RPC_URL) {
-        console.error("CRITICAL: Creator variables missing in Render Settings!");
-        return; 
-    }
-
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-    const wallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
-    console.log("Creator Wallet Address:", wallet.address);
-    // ---------------------------
-    
-    console.log("Boss (Creator) is starting...");
-    // ... rest of your code
 const { ethers } = require("ethers");
-const http = require("http"); // Added for port fix
-
+const http = require("http");
 const MasterArena = require("./abis/MasterArena.json");
 
-// Dummy server to satisfy Render's port requirement
+// Start dummy server immediately so Render stays green
 const port = process.env.PORT || 10000;
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Backend is running\n');
-});
-
-server.listen(port, () => {
-  console.log(`Dummy server running on port ${port}`);
-});
+http.createServer((req, res) => { res.end('Live'); }).listen(port);
 
 async function startCreator() {
+    console.log("--- Creator Health Check ---");
+    // This will tell us if Render actually sees the keys
+    console.log("Check CREATOR_PRIVATE_KEY:", process.env.CREATOR_PRIVATE_KEY ? "FOUND" : "NOT FOUND");
+    console.log("Check RPC_URL:", process.env.RPC_URL ? "FOUND" : "NOT FOUND");
+
     try {
-        console.log("Boss (Creator) is starting...");
-        console.log("Found MasterArena.json successfully.");
+        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+        const wallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
+        console.log("Boss Wallet Address:", wallet.address);
 
         // --- PASTE YOUR ORIGINAL BOSS LOGIC HERE ---
 
-        setInterval(() => {
-            console.log("Boss (Creator) heartbeat: Service is active...");
-        }, 60000); 
-
-    } catch (error) {
-        console.error("Creator Startup Error:", error);
+    } catch (e) {
+        console.log("Startup warning (continuing anyway):", e.message);
     }
-}
 
+    // Force Keep-Alive
+    setInterval(() => console.log("Boss heartbeat..."), 60000);
+}
 startCreator();
-
-}
-
