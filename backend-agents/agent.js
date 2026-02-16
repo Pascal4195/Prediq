@@ -11,81 +11,66 @@ const MarketABI = [
 ];
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
-let lastTaskTime = 0; // Prevents spamming transactions
+let lastTaskTime = 0; 
 
-// Robust Price Fetcher to fix "Price Fetch Failed"
-async function getPrice(coinId = 'bitcoin') {
+// --- ROBUST API: CryptoCompare (No regional blocks, no keys needed for public data) ---
+async function getPrice() {
     try {
-        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
-        
-        if (response.status === 429) {
-            console.log("⚠️ CoinGecko Rate Limit hit. Waiting...");
-            return null;
-        }
-
+        const response = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD`);
         const data = await response.json();
-        return data[coinId]?.usd || null;
+        if (data && data.USD) {
+            return data.USD;
+        }
+        throw new Error("Invalid data format");
     } catch (e) {
-        console.log("❌ Network issue reaching CoinGecko.");
+        console.log("❌ Price Fetch Failed. Retrying in next cycle...");
         return null;
     }
 }
 
 async function runAgent() {
-    // 1. Check for Private Key
     if (!PRIVATE_KEY) {
-        console.error("CRITICAL ERROR: CREATOR_PRIVATE_KEY is missing in Render Environment Variables!");
-        process.exit(1);
+        console.error("FATAL: CREATOR_PRIVATE_KEY missing in Render settings!");
+        return;
     }
 
     const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
     const marketContract = new ethers.Contract(MARKET_ADDRESS, MarketABI, wallet);
 
-    console.log("--- SMART CREATOR AGENT ONLINE ---");
-    console.log(`Wallet Address: ${wallet.address}`);
-    console.log(`Targeting Market: ${MARKET_ADDRESS}`);
+    console.log(`--- AGENT LIVE | WALLET: ${wallet.address} ---`);
 
-    // Main Loop - Checks every 60 seconds
+    // Main logic loop
     setInterval(async () => {
         try {
-            const btcPrice = await getPrice('bitcoin');
+            const btcPrice = await getPrice();
             const balance = await provider.getBalance(wallet.address);
             const now = Date.now();
-            
-            // Log Status
+
             if (btcPrice) {
-                console.log(`[Mainnet] BTC: $${btcPrice} | Balance: ${ethers.formatEther(balance)} MON`);
-            } else {
-                console.log(`[Mainnet] Price unavailable | Balance: ${ethers.formatEther(balance)} MON`);
-            }
-
-            // CREATOR LOGIC: 
-            // Trigger if BTC > 50k AND it's been at least 1 hour since the last task (3600000 ms)
-            if (btcPrice && btcPrice > 50000 && (now - lastTaskTime > 3600000)) { 
-                const description = `BTC is currently at $${btcPrice}. Will it stay above $50,000 for the next hour?`;
+                console.log(`[STATUS] BTC: $${btcPrice} | Wallet: ${ethers.formatEther(balance)} MON`);
                 
-                console.log("🚀 Condition Met. Creating Task on Monad Mainnet...");
+                // COOLDOWN: 15 minutes (900,000 ms) so you can actually see tasks on the site quickly
+                if (now - lastTaskTime > 900000) {
+                    console.log("🚀 Conditions met. Creating Mainnet Task...");
+                    
+                    const desc = `BTC is currently $${btcPrice}. Will it stay above this price for 1 hour?`;
+                    const deadline = Math.floor(Date.now() / 1000) + 3600;
 
-                // Create Task with 1-hour deadline
-                const deadline = Math.floor(Date.now() / 1000) + 3600;
-                const tx = await marketContract.createTask(description, deadline, {
-                    gasLimit: 500000 // Added safety gas limit
-                });
+                    const tx = await marketContract.createTask(desc, deadline, {
+                        gasLimit: 300000 // Essential for Monad Mainnet stability
+                    });
 
-                console.log(`Transaction Sent! Hash: ${tx.hash}`);
-                await tx.wait();
-                
-                lastTaskTime = now; // Update cooldown
-                console.log("✅ Task successfully confirmed on-chain.");
+                    console.log(`Transaction Sent: ${tx.hash}`);
+                    await tx.wait();
+                    
+                    lastTaskTime = now;
+                    console.log("✅ SUCCESS: Task is now on-chain. Website should update.");
+                }
             }
-
         } catch (error) {
-            console.error("Loop Error:", error.reason || error.message);
+            console.log("Cycle skipped: Network or Gas issue.");
         }
-    }, 60000); 
+    }, 30000); // Check every 30 seconds
 }
 
-runAgent().catch((err) => {
-    console.error("FATAL STARTUP ERROR:", err);
-    process.exit(1);
-});
+runAgent().catch(console.error);
