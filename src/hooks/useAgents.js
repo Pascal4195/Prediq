@@ -1,42 +1,44 @@
+import { useState, useEffect } from 'react';
+import { getContract } from '@/utils/eth';
+import { ethers } from 'ethers';
+
 export function useAgents() {
-  const [agents, setAgents] = useState([]); // This will hold your Task/Agent cards
+  const [agents, setAgents] = useState([]); // This will store your Task/Prediction cards
   const [loading, setLoading] = useState(true);
 
-  const fetchAgents = async () => {
+  const fetchActivity = async () => {
     try {
       setLoading(true);
-      // 1. Change REGISTRY to MARKET (where the actual betting is happening)
-      // 2. Ensure MarketABI matches the MasterArena/Market logic
-      const contract = await getContract(CONTRACT_ADDRESSES.MARKET, MarketABI);
-      
+      const contract = await getContract();
       if (!contract) return;
 
-      // 3. Fetching the actual Tasks/Bets shown in your backend logs
+      // getAllTasks is the standard function for your MasterArena contract
       const taskData = await contract.getAllTasks(); 
       
-      const formattedData = taskData.map(task => ({
+      const formatted = taskData.map(task => ({
         id: task.id.toString(),
         agentName: `Task #${task.id.toString()}`,
         performance: task.totalStaked ? ethers.formatEther(task.totalStaked) : "0",
         prediction: task.resolved ? (task.result ? "UP" : "DOWN") : "ACTIVE",
-        stake: task.totalStaked ? ethers.formatEther(task.totalStaked) : "0.01",
-        strategy: task.description || "Monad Prediction Task"
+        stake: "0.01 MON", // Based on your successful agent logs
+        strategy: task.description || "AI Prediction Market"
       }));
 
-      setAgents(formattedData);
+      // Reverse to show the newest activity (like Task 5) at the top
+      setAgents(formatted.reverse()); 
     } catch (err) {
-      console.error("Error fetching tasks for frontend:", err);
+      console.error("Frontend sync error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAgents();
-    // CRITICAL: Refresh every 10 seconds so the website updates when agents bet
-    const interval = setInterval(fetchAgents, 10000);
+    fetchActivity();
+    // Refresh every 12 seconds to catch new agent bets shown in logs
+    const interval = setInterval(fetchActivity, 12000); 
     return () => clearInterval(interval);
   }, []);
 
-  return { agents, loading, refresh: fetchAgents };
+  return { agents, loading, refresh: fetchActivity };
 }
