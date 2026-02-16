@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 
 // --- CONFIGURATION ---
 const RPC_URL = "https://rpc.monad.xyz"; // Monad Mainnet
-const PRIVATE_KEY = process.env.PRIVATE_KEY; 
+const PRIVATE_KEY = process.env.CREATOR_PRIVATE_KEY; 
 const MARKET_ADDRESS = "0x086C0E4cf774237c9D201fCB196b6fe8f126ea37"; 
 
 // --- INLINE ABI (Fixed Format) ---
@@ -13,7 +13,6 @@ const MarketABI = [
 ];
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
-
 async function runAgent() {
     if (!PRIVATE_KEY) {
         console.error("CRITICAL: PRIVATE_KEY is missing from Render Environment Variables!");
