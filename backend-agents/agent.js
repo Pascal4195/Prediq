@@ -1,44 +1,54 @@
 import { ethers } from 'ethers';
 
-// --- CONFIGURATION ---
 const RPC_URL = "https://rpc.monad.xyz"; 
 const PRIVATE_KEY = process.env.CREATOR_PRIVATE_KEY; 
-const MARKET_ADDRESS = "0x086C0E4cf774237c9D201fCB196b6fe8f126ea37"; 
+const MARKET_ADDRESS = ""; 
 
 const MarketABI = [
   "event TaskCreated(uint256 indexed taskId, string description, address creator)",
-  "function getTask(uint256 taskId) view returns (string, address, bool)",
+  "function createTask(string description, uint256 deadline) external returns (uint256)",
   "function submitTask(uint256 taskId, string data) external"
 ];
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 
-async function runAgent() {
-    if (!PRIVATE_KEY) {
-        console.error("CRITICAL: PRIVATE_KEY missing in Render settings!");
-        process.exit(1);
+async function getPrice(coinId = 'bitcoin') {
+    try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
+        const data = await response.json();
+        return data[coinId].usd;
+    } catch (e) {
+        return null;
     }
+}
 
+async function runAgent() {
+    if (!PRIVATE_KEY) return;
     const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
     const marketContract = new ethers.Contract(MARKET_ADDRESS, MarketABI, wallet);
 
-    console.log("--- MONAD MAINNET AGENT ONLINE ---");
-    console.log(`Wallet: ${wallet.address}`);
+    console.log(`--- CREATOR AGENT ACTIVE: ${wallet.address} ---`);
 
-    // --- FIX FOR THE 'METHOD NOT FOUND' ERROR ---
-    // Instead of marketContract.on, we use a loop to check the balance and connection
-    // This stops the red errors in your 3:54 AM log
-    
     setInterval(async () => {
         try {
+            const price = await getPrice('bitcoin');
             const balance = await provider.getBalance(wallet.address);
-            const blockNumber = await provider.getBlockNumber();
-            console.log(`[Block ${blockNumber}] Heartbeat: Active. Balance: ${ethers.formatEther(balance)} MON`);
+            console.log(`[Mainnet] BTC Price: $${price} | Wallet: ${ethers.formatEther(balance)} MON`);
+
+            // CREATOR LOGIC: If price is high, create a "Short" task. If low, create a "Long" task.
+            if (price > 50000) { 
+                const description = `BTC is at $${price}. Predict: Will it drop below $48k in 1 hour?`;
+                console.log("Creating new Task on Mainnet...");
+                
+                // This calls the actual Smart Contract to create the task
+                const tx = await marketContract.createTask(description, Math.floor(Date.now() / 1000) + 3600);
+                await tx.wait();
+                console.log("✅ Task Created Successfully!");
+            }
         } catch (e) {
-            // This catches RPC hiccups without crashing the whole agent
-            console.log("RPC temporary lag, retrying in 30s...");
+            console.log("Waiting for next block...");
         }
-    }, 30000);
+    }, 60000); 
 }
 
 runAgent().catch(console.error);
