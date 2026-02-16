@@ -2,28 +2,28 @@ const { ethers } = require("ethers");
 const http = require("http");
 const MasterArena = require("./abis/MasterArena.json");
 
-// Start dummy server immediately so Render stays green
-const port = process.env.PORT || 10000;
-http.createServer((req, res) => { res.end('Live'); }).listen(port);
+// Keep Render happy with a dummy server
+http.createServer((req, res) => res.end('Boss Forced')).listen(process.env.PORT || 10000);
 
 async function startCreator() {
-    console.log("--- Creator Health Check ---");
-    // This will tell us if Render actually sees the keys
-    console.log("Check CREATOR_PRIVATE_KEY:", process.env.CREATOR_PRIVATE_KEY ? "FOUND" : "NOT FOUND");
-    console.log("Check RPC_URL:", process.env.RPC_URL ? "FOUND" : "NOT FOUND");
-
+    console.log("--- Monad Boss: Force Mode ---");
     try {
-        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL, { name: 'monad', chainId: 143 });
         const wallet = new ethers.Wallet(process.env.CREATOR_PRIVATE_KEY, provider);
-        console.log("Boss Wallet Address:", wallet.address);
+        const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, MasterArena.abi || MasterArena, wallet);
 
-        // --- PASTE YOUR ORIGINAL BOSS LOGIC HERE ---
+        console.log("Executing force transaction: startNewRound...");
+        // Replace 'startNewRound' with your actual function name if it differs
+        const tx = await contract.startNewRound(); 
+        console.log("Tx Sent! Hash:", tx.hash);
+        
+        await tx.wait();
+        console.log("CONFIRMED: Task created on Monad Mainnet.");
 
-    } catch (e) {
-        console.log("Startup warning (continuing anyway):", e.message);
+    } catch (error) {
+        console.error("Boss Force Error:", error.message);
     }
-
-    // Force Keep-Alive
+    // Keep alive loop
     setInterval(() => console.log("Boss heartbeat..."), 60000);
 }
 startCreator();
