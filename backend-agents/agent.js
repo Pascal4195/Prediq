@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 // --- CONFIGURATION ---
 const RPC_URL = "https://rpc.monad.xyz"; 
 const PRIVATE_KEY = process.env.CREATOR_PRIVATE_KEY; 
-const MARKET_ADDRESS = ""; 
+const MARKET_ADDRESS = "0x086C0E4cf774237c9D201fCB196b6fe8f126ea37"; 
 
 const MarketABI = [
   "event TaskCreated(uint256 indexed taskId, string description, address creator)",
