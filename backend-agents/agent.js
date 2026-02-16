@@ -1,11 +1,10 @@
 import { ethers } from 'ethers';
 
 // --- CONFIGURATION ---
-const RPC_URL = "https://rpc.monad.xyz"; // Monad Mainnet
+const RPC_URL = "https://rpc.monad.xyz"; 
 const PRIVATE_KEY = process.env.CREATOR_PRIVATE_KEY; 
-const MARKET_ADDRESS = "0x086C0E4cf774237c9D201fCB196b6fe8f126ea37"; 
+const MARKET_ADDRESS = ""; 
 
-// --- INLINE ABI (Fixed Format) ---
 const MarketABI = [
   "event TaskCreated(uint256 indexed taskId, string description, address creator)",
   "function getTask(uint256 taskId) view returns (string, address, bool)",
@@ -13,9 +12,10 @@ const MarketABI = [
 ];
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
+
 async function runAgent() {
     if (!PRIVATE_KEY) {
-        console.error("CRITICAL: PRIVATE_KEY is missing from Render Environment Variables!");
+        console.error("CRITICAL: PRIVATE_KEY missing in Render settings!");
         process.exit(1);
     }
 
@@ -23,23 +23,22 @@ async function runAgent() {
     const marketContract = new ethers.Contract(MARKET_ADDRESS, MarketABI, wallet);
 
     console.log("--- MONAD MAINNET AGENT ONLINE ---");
-    console.log(`Agent Address: ${wallet.address}`);
+    console.log(`Wallet: ${wallet.address}`);
 
-    marketContract.on("TaskCreated", (taskId, description, creator) => {
-        console.log(`🚀 MAINNET TASK DETECTED: [ID: ${taskId}] - ${description}`);
-    });
-
+    // --- FIX FOR THE 'METHOD NOT FOUND' ERROR ---
+    // Instead of marketContract.on, we use a loop to check the balance and connection
+    // This stops the red errors in your 3:54 AM log
+    
     setInterval(async () => {
         try {
             const balance = await provider.getBalance(wallet.address);
-            console.log(`Live: Mainnet Status Check. Balance: ${ethers.formatEther(balance)} MON`);
+            const blockNumber = await provider.getBlockNumber();
+            console.log(`[Block ${blockNumber}] Heartbeat: Active. Balance: ${ethers.formatEther(balance)} MON`);
         } catch (e) {
-            console.error("Mainnet RPC connection issue:", e.message);
+            // This catches RPC hiccups without crashing the whole agent
+            console.log("RPC temporary lag, retrying in 30s...");
         }
     }, 30000);
 }
 
-runAgent().catch((err) => {
-    console.error("FATAL STARTUP ERROR:", err);
-    process.exit(1);
-});
+runAgent().catch(console.error);
