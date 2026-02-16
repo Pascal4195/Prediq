@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 // --- CONFIGURATION ---
 const RPC_URL = "https://testnet-rpc.monad.xyz"; 
 const PRIVATE_KEY = "YOUR_PRIVATE_KEY_HERE"; 
-const MARKET_ADDRESS = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"; // Verify this address
+const MARKET_ADDRESS = "0x086C0E4cf774237c9D201fCB196b6fe8f126ea37"; // Verify this address
 
 // --- INLINE ABI (Fixes ENOENT error) ---
 // Paste the actual content of your Market.json between the brackets [[
