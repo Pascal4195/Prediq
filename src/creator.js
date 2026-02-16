@@ -15,8 +15,6 @@ async function startCreator() {
     
     console.log("Boss (Creator) is starting...");
     // ... rest of your code
-}
-
 const { ethers } = require("ethers");
 const http = require("http"); // Added for port fix
 
@@ -51,3 +49,6 @@ async function startCreator() {
 }
 
 startCreator();
+
+}
+
