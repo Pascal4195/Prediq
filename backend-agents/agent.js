@@ -1,151 +1,46 @@
 import { ethers } from 'ethers';
 
 // --- CONFIGURATION ---
-const RPC_URL = "https://rpc.monad.xyz"; 
-const PRIVATE_KEY = process.env.CREATOR_PRIVATE_KEY; 
-const MARKET_ADDRESS = "0x086C0E4cf774237c9D201fCB196b6fe8f126ea37"; // Verify this address
+const RPC_URL = "https://rpc.monad.xyz"; // Monad Mainnet
+const PRIVATE_KEY = process.env.PRIVATE_KEY; 
+const MARKET_ADDRESS = "0x086C0E4cf774237c9D201fCB196b6fe8f126ea37"; 
 
-// --- INLINE ABI (Fixes ENOENT error) ---
-// Paste the actual content of your Market.json between the brackets [[
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "rId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "_side",
-				"type": "bool"
-			}
-		],
-		"name": "predict",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "rId",
-				"type": "uint256"
-			}
-		],
-		"name": "resolveRound",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_reg",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_ora",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
-		"name": "oracle",
-		"outputs": [
-			{
-				"internalType": "contract MoltOracle",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "registry",
-		"outputs": [
-			{
-				"internalType": "contract MoltRegistry",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "rounds",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "targetPrice",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "yesPool",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "noPool",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "resolved",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "winner",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-]
- ]
+// --- INLINE ABI (Fixed Format) ---
 const MarketABI = [
-  // Example: "function TaskCreated(uint256 taskId, string description, address creator)"
-  // PASTE YOUR FULL ABI ARRAY HERE
+  "event TaskCreated(uint256 indexed taskId, string description, address creator)",
+  "function getTask(uint256 taskId) view returns (string, address, bool)",
+  "function submitTask(uint256 taskId, string data) external"
 ];
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
-const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
-const marketContract = new ethers.Contract(MARKET_ADDRESS, MarketABI, wallet);
 
 async function runAgent() {
-    console.log("--- Agent System Online ---");
+    if (!PRIVATE_KEY) {
+        console.error("CRITICAL: PRIVATE_KEY is missing from Render Environment Variables!");
+        process.exit(1);
+    }
+
+    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+    const marketContract = new ethers.Contract(MARKET_ADDRESS, MarketABI, wallet);
+
+    console.log("--- MONAD MAINNET AGENT ONLINE ---");
     console.log(`Agent Address: ${wallet.address}`);
 
     marketContract.on("TaskCreated", (taskId, description, creator) => {
-        console.log(`NEW TASK: [ID: ${taskId}] - ${description}`);
+        console.log(`🚀 MAINNET TASK DETECTED: [ID: ${taskId}] - ${description}`);
     });
 
     setInterval(async () => {
         try {
             const balance = await provider.getBalance(wallet.address);
-            console.log(`Heartbeat: Active. Balance: ${ethers.formatEther(balance)} MON`);
+            console.log(`Live: Mainnet Status Check. Balance: ${ethers.formatEther(balance)} MON`);
         } catch (e) {
-            console.error("Heartbeat error:", e.message);
+            console.error("Mainnet RPC connection issue:", e.message);
         }
     }, 30000);
 }
 
-runAgent().catch(console.error);
+runAgent().catch((err) => {
+    console.error("FATAL STARTUP ERROR:", err);
+    process.exit(1);
+});
