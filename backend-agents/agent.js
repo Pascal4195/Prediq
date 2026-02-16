@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 
 // --- CONFIGURATION ---
-const RPC_URL = "https://testnet-rpc.monad.xyz"; 
-const PRIVATE_KEY = "YOUR_PRIVATE_KEY_HERE"; 
+const RPC_URL = "https://rpc.monad.xyz"; 
+const PRIVATE_KEY = process.env.; 
 const MARKET_ADDRESS = "0x086C0E4cf774237c9D201fCB196b6fe8f126ea37"; // Verify this address
 
 // --- INLINE ABI (Fixes ENOENT error) ---
